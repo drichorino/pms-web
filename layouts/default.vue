@@ -99,19 +99,24 @@ export default {
       items: [
         {
           icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/'
+          title: 'Menu Menu',
+          to: '/dashboard'
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire'
-        }
+          title: 'Users',
+          to: '/users'
+        },
+        {
+          icon: 'mdi-chart-bubble',
+          title: 'Projects',
+          to: '/projects'
+        },
       ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Vuetify.js'
+      title: 'Payroll Management System'
     }
   }
 }
