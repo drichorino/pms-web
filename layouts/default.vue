@@ -109,6 +109,11 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
+          title: 'Workers',
+          to: '/projects'
+        },
+        {
+          icon: 'mdi-chart-bubble',
           title: 'Projects',
           to: '/projects'
         },
