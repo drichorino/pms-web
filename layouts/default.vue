@@ -110,7 +110,7 @@ export default {
         {
           icon: 'mdi-chart-bubble',
           title: 'Workers',
-          to: '/projects'
+          to: '/workers'
         },
         {
           icon: 'mdi-chart-bubble',
