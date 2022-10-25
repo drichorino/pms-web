@@ -6,6 +6,7 @@ axios.defaults.withCredentials = true
 class REQUEST {
 
     static POST = async (params) => {
+        console.log(`${config.host.host}/${params.slug}`)
         let promise = await axios.post(`${config.host.host}/${params.slug}`, params.payload)
                             .then(
                                 (data) => params.success(data)
@@ -21,10 +22,10 @@ class REQUEST {
         console.log(`${config.host.host}/${params.slug}`)
         let promise = await axios.get(`${config.host.host}/${params.slug}`, params.payload)
                             .then(
-                                (data) => console.log('get success')
-                            )
+                                (data) => params.success(data)
+                                )
                             .catch(
-                                (err) => console.log('get fail')
+                                (err) => params.fail(err)
                                 )
         return promise
      }
