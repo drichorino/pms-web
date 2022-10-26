@@ -3,6 +3,7 @@
     :headers="headers"
     :items="users"
     :search="search"
+    @click:row="handleClick"
     sort-by="last_name"
     class="elevation-1"
   >
@@ -22,7 +23,11 @@
           append-icon="mdi-magnify"
           label="Search"
           single-line
+          outlined
           hide-details
+          clearable
+          rounded
+          dense
         ></v-text-field>
         <v-divider
           class="mx-4"
@@ -37,7 +42,6 @@
             <v-btn
               color="primary"
               dark
-              class="mb-2"
               v-bind="attrs"
               v-on="on"
             >
@@ -139,12 +143,7 @@
       </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-btn
-        color="primary"
-        @click="initialize"
-      >
-        Reset
-      </v-btn>
+        No Data Available
     </template>
   </v-data-table>
 </template>
@@ -153,117 +152,139 @@
 import user_list from  "../../api/users/list"
 
   export default {
-    
-    name: 'UsersPage',
+      
+      name: 'UsersPage',
 
-    data: () => ({
-      users: [],
-      search: '',
-      dialog: false,
-      dialogDelete: false,
-      headers: [
-        {
-          text: 'First Name',
-          align: 'start',
-          sortable: true,
-          value: 'first_name',
-        },
-        {
-          text: 'Last Name',
-          align: 'start',
-          sortable: true,
-          value: 'last_name',
-        },
-        { 
-          text: 'Email Address', 
-          value: 'email',
-          sortable: true,
-        },
+      data: () => ({
+          users: [],
+          search: '',
+          dialog: false,
+          dialogDelete: false,
+          headers: [
+              {
+                  text: 'First Name',
+                  align: 'start',
+                  sortable: true,
+                  value: 'first_name',
+                  class: "blue--text"
+              },
+              {
+                  text: 'Last Name',
+                  align: 'start',
+                  sortable: true,
+                  value: 'last_name',
+                  class: "blue--text"
+              },
+              { 
+                  text: 'Email Address', 
+                  value: 'email',
+                  sortable: true,
+                  class: "blue--text"
+              },
+              { 
+                  text: 'Actions', 
+                  value: 'actions', 
+                  sortable: false,
+                  class: "blue--text"
 
-        { text: 'Actions', value: 'actions', sortable: false },
-      ],
-      editedIndex: -1,
-      editedItem: {
-        first_name: '',
-        last_name: '',
-        email: '',
-      },
-      defaultItem: {
-        first_name: '',
-        last_name: '',
-        email: '',
-      },
-    }),
+              },
+          ],
+          editedIndex: -1,
+          editedItem: {
+              first_name: '',
+              last_name: '',
+              email: '',
+          },
+          defaultItem: {
+              first_name: '',
+              last_name: '',
+              email: '',
+          },
+      }),
 
-    computed: {
-      formTitle () {
-        return this.editedIndex === -1 ? 'Add User' : 'Edit User'
-      },
-    },
-
-    watch: {
-      dialog (val) {
-        val || this.close()
-      },
-      dialogDelete (val) {
-        val || this.closeDelete()
-      },
-    },
-
-    async created() {
-      // fetch on init
-      const api_response = await user_list.user_list()
-     
-      if (api_response.status === 1) {
-          console.log(api_response)
-          this.users = api_response.outputData.data
-        } else if (api_response.status === 0){
-          console.log(api_response.outputData.response.data.message)
-        }
-    },
-
-    methods: { 
-      editItem (item) {
-        this.editedIndex = this.users.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
+      computed: {
+          formTitle () {
+              return this.editedIndex === -1 ? 'Add User' : 'Edit User'
+          },
       },
 
-      deleteItem (item) {
-        this.editedIndex = this.users.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
+      watch: {
+          dialog (val) {
+              val || this.close()
+          },
+          dialogDelete (val) {
+              val || this.closeDelete()
+          },
       },
 
-      deleteItemConfirm () {
-        this.users.splice(this.editedIndex, 1)
-        this.closeDelete()
+      async created() {
+        // fetch on init
+        const api_response = await user_list.user_list()
+      
+        if (api_response.status === 1) {
+                console.log(api_response)
+                this.users = api_response.outputData.data
+            } else if (api_response.status === 0){
+                console.log(api_response.outputData.response.data.message)
+            }
       },
 
-      close () {
-        this.dialog = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
+      methods: { 
+          handleClick(row) {
+              // set active row and deselect others
+              /*
+              this.users.map((item, index) => {
+                  item.selected = item === row
 
-      closeDelete () {
-        this.dialogDelete = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
+                  this.$set(this.users, index, item)
+              })
+              */
 
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.users[this.editedIndex], this.editedItem)
-        } else {
-          this.users.push(this.editedItem)
-        }
-        this.close()
+              // or just do something with your current clicked row item data
+              console.log(row.first_name)
+          },
+
+          editItem (item) {
+              this.editedIndex = this.users.indexOf(item)
+              this.editedItem = Object.assign({}, item)
+              this.dialog = true
+          },
+
+          deleteItem (item) {
+              this.editedIndex = this.users.indexOf(item)
+              this.editedItem = Object.assign({}, item)
+              this.dialogDelete = true
+          },
+
+          deleteItemConfirm () {
+              this.users.splice(this.editedIndex, 1)
+              this.closeDelete()
+          },
+
+          close () {
+              this.dialog = false
+              this.$nextTick(() => {
+                  this.editedItem = Object.assign({}, this.defaultItem)
+                  this.editedIndex = -1
+              })
+          },
+
+          closeDelete () {
+              this.dialogDelete = false
+              this.$nextTick(() => {
+                  this.editedItem = Object.assign({}, this.defaultItem)
+                  this.editedIndex = -1
+              })
+          },
+
+          save () {
+              if (this.editedIndex > -1) {
+                      Object.assign(this.users[this.editedIndex], this.editedItem)
+                  } else {
+                      this.users.push(this.editedItem)
+                  }
+              this.close()
+          },
       },
-    },
   }
   </script>
