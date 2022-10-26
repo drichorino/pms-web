@@ -49,8 +49,7 @@
             </v-btn>
           </template>
 
-          <!-- ADD AND EDIT MODAL -->
-          
+          <!-- ADD AND EDIT MODAL -->          
           <v-card>
             <v-card-title>
               <span class="text-h5">{{ formTitle }}</span>
@@ -149,7 +148,7 @@
 </template>
   
 <script>
-import user_list from  "../../api/users/list"
+import UsersAPI from  "../../api/users/api"
 
   export default {
       
@@ -219,7 +218,7 @@ import user_list from  "../../api/users/list"
 
       async created() {
         // fetch on init
-        const api_response = await user_list.user_list()
+        const api_response = await UsersAPI.list()
       
         if (api_response.status === 1) {
                 console.log(api_response)
