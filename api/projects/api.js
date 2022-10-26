@@ -1,11 +1,11 @@
 import base from '../base'
 import {success, fail} from '../api_response'
 
-class UserList {
+class ProjectsAPI {
 
-    static user_list = async (payload ) => {
+    static list = async (payload ) => {
         let promise = await base.GET({
-            slug: 'users/list/',
+            slug: 'projects/list/',
             payload: payload,
             headers: {},
             success: (data) => success(data),
@@ -17,4 +17,4 @@ class UserList {
 
 }
 
-export default UserList
+export default ProjectsAPI

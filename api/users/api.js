@@ -1,7 +1,7 @@
 import base from '../base'
 import {success, fail} from '../api_response'
 
-class User {
+class UsersAPI {
 
     static login = async (payload ) => {
         let promise = await base.POST({
@@ -27,7 +27,18 @@ class User {
         return promise
     }
 
+    static list = async (payload ) => {
+        let promise = await base.GET({
+            slug: 'users/list/',
+            payload: payload,
+            headers: {},
+            success: (data) => success(data),
+            fail: (err) => fail(err)
+        })
+
+        return promise
+    }
 
 }
 
-export default User
+export default UsersAPI
