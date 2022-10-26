@@ -1,5 +1,6 @@
 <template>
   <v-app dark>
+    
     <v-navigation-drawer
       v-model="drawer"
       :mini-variant="miniVariant"
@@ -8,22 +9,46 @@
       app
     >
       <v-list>
+
         <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
+          :to="dashboard"
+          @click="clear()"
+        >
+          <v-list-item-icon>
+            <v-icon>mdi-home</v-icon>
+          </v-list-item-icon>  
+          <v-list-item-title>Home</v-list-item-title>
+        </v-list-item>
+
+        <v-list-group          
+          v-for="item in items"
+          :key="item.title"          
+          :prepend-icon="item.action"
+          v-model="item.active"
+          no-action
           router
           exact
         >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title v-text="item.title"></v-list-item-title>
+            </v-list-item-content>
+          </template>
+  
+          <v-list-item
+            v-for="child in item.items"
+            :key="child.title"
+            :to="child.to"
+          >
+            <v-list-item-content>
+              <v-list-item-title v-text="child.title"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
+      </v-list>      
     </v-navigation-drawer>
+
+
     <v-app-bar
       :clipped-left="clipped"
       fixed
@@ -96,32 +121,50 @@ export default {
       clipped: false,
       drawer: false,
       fixed: false,
+      dashboard: '/dashboard',
       items: [
         {
-          icon: 'mdi-apps',
-          title: 'Dashboard',
-          to: '/dashboard'
-        },
-        {
-          icon: 'mdi-account-circle',
+          action: 'mdi-account-circle',
+          items: [
+            { 
+              title: 'List',
+              to: '/users/list'
+            },
+          ],
           title: 'Users',
-          to: '/users/list'
         },
         {
-          icon: 'mdi-hammer-wrench',
+          action: 'mdi-hammer-wrench',
+          items: [
+            { 
+              title: 'List',
+              to: '/projects/list'
+            },
+          ],
           title: 'Projects',
-          to: '/projects'
         },
         {
-          icon: 'mdi-account-group',
+          action: 'mdi-account-group',
+          items: [
+            { 
+              title: 'List',
+              to: '/employees'
+            },
+          ],
           title: 'Employees',
-          to: '/employees'
         },
       ],
+     
       miniVariant: false,
       right: true,
       rightDrawer: false,
       title: 'Payroll Management System'
+    }
+  },
+
+  methods: {
+    clear(){
+      this.items.map((item)=>item.active=false)
     }
   }
 }
