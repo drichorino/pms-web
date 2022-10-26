@@ -99,23 +99,23 @@ export default {
       items: [
         {
           icon: 'mdi-apps',
-          title: 'Menu Menu',
+          title: 'Dashboard',
           to: '/dashboard'
         },
         {
-          icon: 'mdi-chart-bubble',
+          icon: 'mdi-account-circle',
           title: 'Users',
           to: '/users/list'
         },
         {
-          icon: 'mdi-chart-bubble',
-          title: 'Workers',
-          to: '/workers'
-        },
-        {
-          icon: 'mdi-chart-bubble',
+          icon: 'mdi-hammer-wrench',
           title: 'Projects',
           to: '/projects'
+        },
+        {
+          icon: 'mdi-account-group',
+          title: 'Employees',
+          to: '/employees'
         },
       ],
       miniVariant: false,
