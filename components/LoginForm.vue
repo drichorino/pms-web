@@ -47,42 +47,42 @@
  </template>
  
  <script>  
-import log_user_api from '../api/users/auth_user'
+import UserAPI from '../api/users/api'
 
-    export default {
-        name: 'LoginForm',
-        props: {
-            source: String,
-        },
-        
-        data () {
-            return {
-                email: '',
-                password: '',
-                is_error: null,
-                error_message: null
+   export default {
+      name: 'LoginForm',
+      props: {
+         source: String,
+      },
+      
+      data () {
+         return {
+            email: '',
+            password: '',
+            is_error: null,
+            error_message: null
+         }
+      },
+      methods: {
+         async user_login() {
+            
+            const credentials = {
+               "email": this.email,
+               "password": this.password
             }
-        },
-        methods: {
-            async user_login() {
-               
-               const credentials = {
-                  "email": this.email,
-                  "password": this.password
-               }
 
-               const api_response = await log_user_api.login(credentials)
+            const api_response = await UserAPI.login(credentials)
 
-               if (api_response.status === 1) {
-                  this.is_error = false
-                  this.$router.push('dashboard')
-               } else if (api_response.status === 0){
-                  this.is_error = true
-                  this.error_message = api_response.outputData.response.data.message
-               }
+            if (api_response.status === 1) {
+               this.is_error = false
+               this.$router.push('dashboard')
+            } else if (api_response.status === 0){
+               this.is_error = true
+               this.error_message = api_response.outputData.response.data.message
             }
-        }
-    };
+         }
+      }
+   };
  </script>
  
  <style></style>
