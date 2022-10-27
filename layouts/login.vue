@@ -1,16 +1,16 @@
 <template>
     <div>
-      <LoginForm />
+        <LoginForm />
     </div>
-  </template>
+</template>
   
-  <script>
-  export default {
+<script>
+export default {
     name: 'LoginLayout',
-  }
-  </script>
+}
+</script>
   
-  <style scoped>
-  
-  </style>
+<style scoped>
+
+</style>
   

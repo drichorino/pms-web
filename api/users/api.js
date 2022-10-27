@@ -1,15 +1,14 @@
 import base from '../base'
-import {success, fail} from '../api_response'
+import { success, fail } from '../api_response'
 
 class UsersAPI {
-
-    static login = async (payload ) => {
+    static login = async payload => {
         let promise = await base.POST({
             slug: 'login/',
             payload: payload,
             headers: {},
-            success: (data) => success(data),
-            fail: (err) => fail(err)
+            success: data => success(data),
+            fail: err => fail(err)
         })
 
         return promise
@@ -20,25 +19,36 @@ class UsersAPI {
             slug: 'logout/',
             payload: {},
             headers: {},
-            success: (data) => success(data),
-            fail: (err) =>  fail(err)
+            success: data => success(data),
+            fail: err => fail(err)
         })
-        
+
         return promise
     }
 
-    static list = async (payload ) => {
+    static list = async payload => {
         let promise = await base.GET({
             slug: 'users/list/',
             payload: payload,
             headers: {},
-            success: (data) => success(data),
-            fail: (err) => fail(err)
+            success: data => success(data),
+            fail: err => fail(err)
         })
 
         return promise
     }
 
+    static archive = async payload => {
+        let promise = await base.GET({
+            slug: 'users/archive/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
 }
 
 export default UsersAPI

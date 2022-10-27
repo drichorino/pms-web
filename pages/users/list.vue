@@ -2,11 +2,30 @@
   <v-data-table
     :headers="headers"
     :items="users"
-    :search="search"
+    :search="search"    
     @click:row="handleClick"
     sort-by="last_name"
     class="elevation-1"
   >
+
+    <template v-slot:item.is_superuser="{ item }">
+      <v-chip
+        :color="isSuperuserColor(item.is_superuser)"
+        dark
+      >
+        {{ isSuperuser(item.is_superuser) }}
+      </v-chip>
+    </template>
+
+    <template v-slot:item.is_staff="{ item }">
+      <v-chip
+        :color="isStaffColor(item.is_staff)"
+        dark
+      >
+        {{ isStaff(item.is_staff) }}
+      </v-chip>
+    </template>
+
     <template v-slot:top>
       <v-toolbar
         flat
@@ -52,7 +71,7 @@
           <!-- ADD AND EDIT MODAL -->          
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
+              <span class="text-h6">{{ formTitle }}</span>
             </v-card-title>
 
             <v-card-text>
@@ -115,7 +134,7 @@
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this user?</v-card-title>
+            <v-card-title class="text-h6">Are you sure you want to delete this user?</v-card-title>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -142,7 +161,7 @@
       </v-icon>
     </template>
     <template v-slot:no-data>
-        No Data Available
+      {{ noDataMessage }}
     </template>
   </v-data-table>
 </template>
@@ -159,6 +178,7 @@ import UsersAPI from  "../../api/users/api"
           search: '',
           dialog: false,
           dialogDelete: false,
+          noDataMessage: '',
           headers: [
               {
                   text: 'First Name',
@@ -177,6 +197,19 @@ import UsersAPI from  "../../api/users/api"
               { 
                   text: 'Email Address', 
                   value: 'email',
+                  sortable: true,
+                  class: "blue--text"
+              },
+              { 
+                  text: 'Admin', 
+                  value: 'is_superuser',
+                  sortable: true,
+                  class: "blue--text"
+              },
+
+              { 
+                  text: 'Staff', 
+                  value: 'is_staff',
                   sortable: true,
                   class: "blue--text"
               },
@@ -222,9 +255,10 @@ import UsersAPI from  "../../api/users/api"
       
         if (api_response.status === 1) {
                 console.log(api_response)
-                this.users = api_response.outputData.data
+                this.users = api_response.outputData.data.payload
             } else if (api_response.status === 0){
                 console.log(api_response.outputData.response.data.message)
+                this.noDataMessage = api_response.outputData.response.data.message
             }
       },
 
@@ -242,6 +276,27 @@ import UsersAPI from  "../../api/users/api"
               // or just do something with your current clicked row item data
               console.log(row.first_name)
           },
+
+          isSuperuser (is_superuser) {
+              if (is_superuser) return 'Yes'
+              else return 'No'
+          },
+
+          isSuperuserColor (is_superuser) {
+              if (is_superuser) return 'green'
+              else return 'red'
+          },
+
+          isStaff (is_staff) {
+              if (is_staff) return 'Yes'
+              else return 'No'
+          },
+
+          isStaffColor (is_staff) {
+              if (is_staff) return 'blue'
+              else return 'red'
+          },
+
 
           editItem (item) {
               this.editedIndex = this.users.indexOf(item)

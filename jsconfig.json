@@ -1,16 +1,28 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./*"],
-      "@/*": ["./*"],
-      "~~/*": ["./*"],
-      "@@/*": ["./*"]
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "~/*": [
+                "./*"
+            ],
+            "@/*": [
+                "./*"
+            ],
+            "~~/*": [
+                "./*"
+            ],
+            "@@/*": [
+                "./*"
+            ]
+        },
+        "jsx": "preserve"
     },
-    "jsx": "preserve"
-  },
-  "exclude": ["node_modules", ".nuxt", "dist"],
-  "vueCompilerOptions": {
-    "target": 2.7
-  }
+    "exclude": [
+        "node_modules",
+        ".nuxt",
+        "dist"
+    ],
+    "vueCompilerOptions": {
+        "target": 2.7
+    }
 }
