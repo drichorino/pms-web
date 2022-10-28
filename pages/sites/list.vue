@@ -1,96 +1,88 @@
 <template>
-<div>
-    <v-data-table :headers="headers" :items="sites" :search="search" @click:row="handleClick" sort-by="name"
-        class="elevation-1">
-        <template v-slot:item.created_at="{ item }">
-              {{ formatDate(item.created_at) }}
-        </template>
-        <template v-slot:item.updated_at="{ item }">
-            {{ formatDate(item.updated_at) }}
-        </template>
+    <div>
+        <v-data-table :headers="headers" :items="sites" :search="search" @click:row="handleClick" sort-by="name"
+            class="elevation-1">
+            <template v-slot:item.created_at="{ item }">
+                {{ formatDate(item.created_at) }}
+            </template>
+            <template v-slot:item.updated_at="{ item }">
+                {{ formatDate(item.updated_at) }}
+            </template>
 
-        <template v-slot:top>
-            <v-toolbar flat>
-                <v-toolbar-title>Sites List</v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-spacer></v-spacer>
-                <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line outlined
-                    hide-details clearable rounded dense></v-text-field>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-dialog v-model="dialog" max-width="500px">
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-btn color="primary" dark v-bind="attrs" v-on="on">
-                            Add Site
-                        </v-btn>
-                    </template>
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-toolbar-title>Sites List</v-toolbar-title>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" maxlength="100" single-line
+                        outlined hide-details clearable rounded dense></v-text-field>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-dialog v-model="dialog" max-width="500px">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn color="primary" dark v-bind="attrs" v-on="on">
+                                Add Site
+                            </v-btn>
+                        </template>
 
-                    <!-- ADD AND EDIT MODAL -->
-                    <v-card>
-                        <v-card-title>
-                            <span class="text-h6">{{ formTitle }}</span>
-                        </v-card-title>
+                        <!-- ADD AND EDIT MODAL -->
+                        <v-card>
+                            <v-card-title>
+                                <span class="text-h6">{{ formTitle }}</span>
+                            </v-card-title>
 
-                        <v-card-text>
-                            <v-container>
-                                <v-row>
-                                    <v-col cols="12" sm="12" md="12">
-                                        <v-text-field v-model="editedItem.name" label="Name"></v-text-field>
-                                    </v-col>
-                                </v-row>
-                            </v-container>
-                        </v-card-text>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12" sm="12" md="12">
+                                            <v-text-field v-model="editedItem.name" label="Name" maxlength="100">
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
 
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-                            <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"> Save </v-btn>
-                        </v-card-actions>
-                    </v-card>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
+                                <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"> Save
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
 
-                </v-dialog>
-                <v-dialog v-model="dialogDelete" max-width="500px">
-                    <v-card>
-                        <v-card-title class="text-h6">Are you sure you want to delete this project?</v-card-title>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                            <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.id)">OK</v-btn>
-                            <v-spacer></v-spacer>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-toolbar>
-        </template>
-        <template v-slot:item.actions="{ item }">
-            <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-            <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
-        </template>
-        <template v-slot:no-data> No active sites. </template>
+                    </v-dialog>
+                    <v-dialog v-model="dialogDelete" max-width="500px">
+                        <v-card>
+                            <v-card-title class="text-h6">Are you sure you want to delete this project?</v-card-title>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.id)">OK</v-btn>
+                                <v-spacer></v-spacer>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
+            </template>
+            <template v-slot:item.actions="{ item }">
+                <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
+                <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+            </template>
+            <template v-slot:no-data> No active sites. </template>
 
-        
-    </v-data-table>
-    <div class="text-center">   
-        <v-snackbar
-          v-model="snackbar"
-          :timeout="timeout"
-          :color="snackbarColor"
-          absolute
-        >
-          {{ responseMessage }}
-    
-          <template v-slot:action="{ attrs }">
-            <v-btn
-              color="white"
-              text
-              v-bind="attrs"
-              @click="snackbar = false"
-            >
-              Close
-            </v-btn>
-          </template>
-        </v-snackbar>
-      </div>
-</div>
+
+        </v-data-table>
+        <div class="text-center">
+            <v-snackbar v-model="snackbar" :timeout="timeout" :color="snackbarColor" absolute>
+                {{ responseMessage }}
+
+                <template v-slot:action="{ attrs }">
+                    <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
+                        Close
+                    </v-btn>
+                </template>
+            </v-snackbar>
+        </div>
+    </div>
 
 </template>
 
@@ -130,7 +122,7 @@ export default {
                 sortable: true,
                 value: "updated_at",
                 class: "blue--text",
-            },            
+            },
             {
                 text: "Actions",
                 value: "actions",
@@ -193,7 +185,7 @@ export default {
             console.log(row.name);
         },
 
-        formatDate (date) {
+        formatDate(date) {
             var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
             date = new Date(date)
             date = date.toLocaleDateString("en-US", options)
@@ -310,7 +302,7 @@ export default {
                     this.initialize()
                 }
             }
-            
+
             this.close();
         },
     },
