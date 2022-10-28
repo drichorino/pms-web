@@ -1,10 +1,10 @@
 import base from '../base'
 import { success, fail } from '../api_response'
 
-class ProjectsAPI {
+class SitesAPI {
     static list = async payload => {
         let promise = await base.GET({
-            slug: 'projects/list/',
+            slug: 'sites/list/',
             payload: payload,
             headers: {},
             success: data => success(data),
@@ -16,7 +16,7 @@ class ProjectsAPI {
 
     static add = async payload => {
         let promise = await base.POST({
-            slug: 'projects/add/',
+            slug: 'sites/add/',
             payload: payload,
             headers: {},
             success: data => success(data),
@@ -28,7 +28,7 @@ class ProjectsAPI {
 
     static edit = async payload => {
         let promise = await base.POST({
-            slug: 'projects/edit/',
+            slug: 'sites/edit/',
             payload: payload,
             headers: {},
             success: data => success(data),
@@ -40,7 +40,7 @@ class ProjectsAPI {
 
     static deactivate = async payload => {
         let promise = await base.POST({
-            slug: 'projects/deactivate/',
+            slug: 'sites/deactivate/',
             payload: payload,
             headers: {},
             success: data => success(data),
@@ -52,7 +52,7 @@ class ProjectsAPI {
 
     static restore = async payload => {
         let promise = await base.POST({
-            slug: 'projects/restore/',
+            slug: 'sites/restore/',
             payload: payload,
             headers: {},
             success: data => success(data),
@@ -64,7 +64,7 @@ class ProjectsAPI {
 
     static archive = async payload => {
         let promise = await base.GET({
-            slug: 'projects/archive/',
+            slug: 'sites/archive/',
             payload: payload,
             headers: {},
             success: data => success(data),
@@ -75,4 +75,4 @@ class ProjectsAPI {
     }
 }
 
-export default ProjectsAPI
+export default SitesAPI
