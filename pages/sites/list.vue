@@ -258,12 +258,12 @@ export default {
             });
         },
 
-        async save(id = null, first_name) {
+        async save(id = null, name) {
             if (this.editedIndex === -1) {
                 //ADD ITEM
 
                 const payload = {
-                    "first_name": first_name
+                    "name": name
                 }
                 const api_response = await SitesAPI.add(payload);
 
