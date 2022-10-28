@@ -5,56 +5,25 @@
             <template v-slot:item.created_at="{ item }">
                   {{ formatDate(item.created_at) }}
             </template>
-            <template v-slot:item.updated_at="{ item }">
-                {{ formatDate(item.updated_at) }}
-          </template>
+            <template v-slot:item.deleted_at="{ item }">
+                {{ formatDate(item.deleted_at) }}
+            </template>
     
             <template v-slot:top>
                 <v-toolbar flat>
-                    <v-toolbar-title>Projects List</v-toolbar-title>
+                    <v-toolbar-title>Archived Projects List</v-toolbar-title>
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <v-spacer></v-spacer>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line outlined
                         hide-details clearable rounded dense></v-text-field>
                     <v-divider class="mx-4" inset vertical></v-divider>
-                    <v-dialog v-model="dialog" max-width="500px">
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn color="primary" dark v-bind="attrs" v-on="on">
-                                Add Project
-                            </v-btn>
-                        </template>
-    
-                        <!-- ADD AND EDIT MODAL -->
-                        <v-card>
-                            <v-card-title>
-                                <span class="text-h6">{{ formTitle }}</span>
-                            </v-card-title>
-    
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12" sm="12" md="12">
-                                            <v-text-field v-model="editedItem.name" label="Name"></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-    
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-                                <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"> Save </v-btn>
-                            </v-card-actions>
-                        </v-card>
-    
-                    </v-dialog>
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
-                            <v-card-title class="text-h6">Are you sure you want to delete this project?</v-card-title>
+                            <v-card-title class="text-h6">Are you sure you want to reactivate this project?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.id)">OK</v-btn>
+                                <v-btn color="blue darken-1" text @click="closeRestore">Cancel</v-btn>
+                                <v-btn color="blue darken-1" text @click="restoreItemConfirm(editedItem.id)">OK</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -62,10 +31,9 @@
                 </v-toolbar>
             </template>
             <template v-slot:item.actions="{ item }">
-                <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-                <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+                <v-icon small @click="restoreItem(item)"> mdi-restore </v-icon>
             </template>
-            <template v-slot:no-data> No active projects. </template>
+            <template v-slot:no-data> No archived projects. </template>
     
             
         </v-data-table>
@@ -98,7 +66,7 @@
     import ProjectsAPI from "../../api/projects/api";
     
     export default {
-        name: "ProjectsPage",
+        name: "ArchivedProjectsPage",
     
         data: () => ({
             projects: [],
@@ -125,10 +93,10 @@
                     class: "blue--text",
                 },
                 {
-                    text: "Updated At",
+                    text: "Deleted At",
                     align: "start",
                     sortable: true,
-                    value: "updated_at",
+                    value: "deleted_at",
                     class: "blue--text",
                 },            
                 {
@@ -158,7 +126,7 @@
                 val || this.close();
             },
             dialogDelete(val) {
-                val || this.closeDelete();
+                val || this.closeRestore();
             },
         },
     
@@ -169,7 +137,7 @@
     
         methods: {
             async initialize() {
-                const api_response = await ProjectsAPI.list();
+                const api_response = await ProjectsAPI.archive();
     
                 if (api_response.status === 1) {
                     console.log(api_response);
@@ -207,19 +175,19 @@
                 this.dialog = true;
             },
     
-            deleteItem(item) {
+            restoreItem(item) {
                 console.log(item)
                 this.editedIndex = this.projects.indexOf(item);
                 this.editedItem = Object.assign({}, item);
                 this.dialogDelete = true;
             },
     
-            async deleteItemConfirm(id) {
+            async restoreItemConfirm(id) {
                 console.log(id)
                 const payload = {
                     "id": id
                 }
-                const api_response = await ProjectsAPI.deactivate(payload);
+                const api_response = await ProjectsAPI.restore(payload);
     
                 if (api_response.status === 1) {
                     console.log(api_response);
@@ -239,7 +207,7 @@
                 }
     
                 //this.projects.splice(this.editedIndex, 1);
-                this.closeDelete();
+                this.closeRestore();
             },
     
             close() {
@@ -250,7 +218,7 @@
                 });
             },
     
-            closeDelete() {
+            closeRestore() {
                 this.dialogDelete = false;
                 this.$nextTick(() => {
                     this.editedItem = Object.assign({}, this.defaultItem);
@@ -258,57 +226,28 @@
                 });
             },
     
-            async save(id = null, name) {
-                if (this.editedIndex === -1) {
-                    //ADD ITEM
+            async save(id, name) {
+                const payload = {
+                    "id": id,
+                    "name": name
+                }
+                const api_response = await ProjectsAPI.edit(payload);
     
-                    const payload = {
-                        "name": name
-                    }
-                    const api_response = await ProjectsAPI.add(payload);
-    
-                    if (api_response.status === 1) {
-                        console.log(api_response);
-                        this.projects = api_response.outputData.data.payload;
-                        this.responseMessage = api_response.outputData.data.message
-                        this.snackbarColor = 'success'
-                        this.snackbar = true
-                        this.projects = []
-                        this.initialize()
-                    } else if (api_response.status === 0) {
-                        console.log(api_response.outputData.response.data.message);
-                        this.responseMessage = api_response.outputData.data.message
-                        this.snackbarColor = 'error'
-                        this.snackbar = true
-                        this.projects = []
-                        this.initialize()
-                    }
-    
-                } else {
-    
-                    //EDIT ITEM
-                    const payload = {
-                        "id": id,
-                        "name": name
-                    }
-                    const api_response = await ProjectsAPI.edit(payload);
-    
-                    if (api_response.status === 1) {
-                        console.log(api_response);
-                        this.projects = api_response.outputData.data.payload;
-                        this.responseMessage = api_response.outputData.data.message
-                        this.snackbarColor = 'success'
-                        this.snackbar = true
-                        this.projects = []
-                        this.initialize()
-                    } else if (api_response.status === 0) {
-                        console.log(api_response.outputData.response.data.message);
-                        this.responseMessage = api_response.outputData.data.message
-                        this.snackbarColor = 'error'
-                        this.snackbar = true
-                        this.projects = []
-                        this.initialize()
-                    }
+                if (api_response.status === 1) {
+                    console.log(api_response);
+                    this.projects = api_response.outputData.data.payload;
+                    this.responseMessage = api_response.outputData.data.message
+                    this.snackbarColor = 'success'
+                    this.snackbar = true
+                    this.projects = []
+                    this.initialize()
+                } else if (api_response.status === 0) {
+                    console.log(api_response.outputData.response.data.message);
+                    this.responseMessage = api_response.outputData.data.message
+                    this.snackbarColor = 'error'
+                    this.snackbar = true
+                    this.projects = []
+                    this.initialize()
                 }
                 
                 this.close();
