@@ -94,12 +94,30 @@ export default {
                     title: 'Users',
                 },
                 {
+                    action: 'mdi-domain',
+                    items: [
+                        {
+                            title: 'Active Sites',
+                            to: '/sites/list'
+                        },
+                        {
+                            title: 'Archived Sites',
+                            to: '/sites/archive'
+                        },
+                    ],
+                    title: 'Sites',
+                },
+                {
                     action: 'mdi-hammer-wrench',
                     items: [
                         {
-                            title: 'List',
+                            title: 'Active Projects',
                             to: '/projects/list'
                         },
+                        {
+                            title: 'Archived Projects',
+                            to: '/projects/archive'
+                        }
                     ],
                     title: 'Projects',
                 },
