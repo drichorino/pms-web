@@ -38,6 +38,30 @@ class UsersAPI {
         return promise
     }
 
+    static create = async payload => {
+        let promise = await base.POST({
+            slug: 'users/create/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
+
+    static edit = async payload => {
+        let promise = await base.POST({
+            slug: 'users/edit/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
+
     static archive = async payload => {
         let promise = await base.GET({
             slug: 'users/archive/',
