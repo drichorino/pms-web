@@ -24,31 +24,45 @@
                             </v-btn>
                         </template>
 
-                        <!-- ADD AND EDIT MODAL -->
+                        <!-- ADD AND EDIT MODAL START -->
                         <v-card>
-                            <v-card-title>
-                                <span class="text-h6">{{ formTitle }}</span>
-                            </v-card-title>
+                            <ValidationObserver 
+                                ref="observer"
+                                v-slot="{ invalid }"
+                            >
+                            <form @submit.prevent="submit">
+                                <v-card-title>
+                                    <span class="text-h6">{{ formTitle }}</span>
+                                </v-card-title>
 
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12" sm="12" md="12">
-                                            <v-text-field v-model="editedItem.name" label="Name" maxlength="100">
-                                            </v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
+                                <ValidationProvider 
+                                    v-slot="{ errors }"
+                                    name="Name"
+                                    rules="required"
+                                >
+                                <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <v-text-field v-model="editedItem.name" label="Name" :counter="100" :error-messages="errors" required>
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-card-text>
+                                </ValidationProvider>
 
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-                                <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"> Save
-                                </v-btn>
-                            </v-card-actions>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
+                                    <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)" :disabled="invalid"> Save
+                                    </v-btn>
+                                </v-card-actions>
+                            </form>
+                        </ValidationObserver >
                         </v-card>
 
+                        <!-- ADD AND EDIT MODAL  END-->
                     </v-dialog>
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
@@ -251,6 +265,8 @@ export default {
         },
 
         async save(id = null, name) {
+            this.$refs.observer.validate()
+
             if (this.editedIndex === -1) {
                 //ADD ITEM
 
