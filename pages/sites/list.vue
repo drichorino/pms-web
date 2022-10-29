@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-data-table :headers="headers" :items="sites" :search="search" @click:row="handleClick" sort-by="name"
-            class="elevation-1">
+            class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
             <template v-slot:item.created_at="{ item }">
                 {{ formatDate(item.created_at) }}
             </template>
@@ -26,43 +26,42 @@
 
                         <!-- ADD AND EDIT MODAL START -->
                         <v-card>
-                            <ValidationObserver 
-                                ref="observer"
-                                v-slot="{ invalid }"
-                            >
-                            <form @submit.prevent="submit">
-                                <v-card-title>
-                                    <span class="text-h6">{{ formTitle }}</span>
-                                </v-card-title>
+                            <ValidationObserver ref="form" v-slot="{ invalid }">
+                                <form @submit.prevent="save(editedItem.id, editedItem.name)">
+                                    <v-card-title>
+                                        <span class="text-h6">{{ formTitle }}</span>
+                                    </v-card-title>
 
-                                <ValidationProvider 
-                                    v-slot="{ errors }"
-                                    name="Name"
-                                    rules="required"
-                                >
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-text-field v-model="editedItem.name" label="Name" :counter="100" :error-messages="errors" required>
-                                                </v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
-                                </ValidationProvider>
 
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)" :disabled="invalid"> Save
-                                    </v-btn>
-                                </v-card-actions>
-                            </form>
-                        </ValidationObserver >
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <ValidationProvider v-slot="{ errors }" name="Name"
+                                                        rules="required">
+                                                        <v-text-field v-model="editedItem.name" label="Name"
+                                                            :counter="100" :error-messages="errors" maxlength="100"
+                                                            required>
+                                                        </v-text-field>
+                                                    </ValidationProvider>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+
+
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
+                                        <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"
+                                            :disabled="invalid"> Save
+                                        </v-btn>
+                                    </v-card-actions>
+                                </form>
+                            </ValidationObserver>
                         </v-card>
+                        <!-- ADD AND EDIT MODAL END-->
 
-                        <!-- ADD AND EDIT MODAL  END-->
                     </v-dialog>
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
@@ -115,6 +114,7 @@ export default {
         snackbarColor: '',
         responseMessage: '',
         timeout: 5000,
+        loadingDataTable: true,
         headers: [
             {
                 text: "Name",
@@ -183,6 +183,8 @@ export default {
             } else if (api_response.status === 0) {
                 console.log(api_response.outputData.response.data.message);
             }
+
+            this.loadingDataTable = false
         },
 
         handleClick(row) {
@@ -249,6 +251,7 @@ export default {
         },
 
         close() {
+            this.$refs.form.reset();
             this.dialog = false;
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem);
@@ -265,7 +268,7 @@ export default {
         },
 
         async save(id = null, name) {
-            this.$refs.observer.validate()
+            this.$refs.form.validate()
 
             if (this.editedIndex === -1) {
                 //ADD ITEM

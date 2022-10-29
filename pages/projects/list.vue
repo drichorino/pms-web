@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-data-table :headers="headers" :items="projects" :search="search" @click:row="handleClick" sort-by="name"
-            class="elevation-1">
+            class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
             <template v-slot:item.created_at="{ item }">
                 {{ formatDate(item.created_at) }}
             </template>
@@ -24,30 +24,43 @@
                             </v-btn>
                         </template>
 
-                        <!-- ADD AND EDIT MODAL -->
+                        <!-- ADD AND EDIT MODAL START -->
                         <v-card>
-                            <v-card-title>
-                                <span class="text-h6">{{ formTitle }}</span>
-                            </v-card-title>
+                            <ValidationObserver ref="form" v-slot="{ invalid }">
+                                <form @submit.prevent="save(editedItem.id, editedItem.name)">
+                                    <v-card-title>
+                                        <span class="text-h6">{{ formTitle }}</span>
+                                    </v-card-title>
 
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12" sm="12" md="12">
-                                            <v-text-field v-model="editedItem.name" label="Name" maxlength="100">
-                                            </v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
 
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-                                <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"> Save
-                                </v-btn>
-                            </v-card-actions>
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <ValidationProvider v-slot="{ errors }" name="Name"
+                                                        rules="required">
+                                                        <v-text-field v-model="editedItem.name" label="Name"
+                                                            :counter="100" :error-messages="errors" maxlength="100"
+                                                            required>
+                                                        </v-text-field>
+                                                    </ValidationProvider>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+
+
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
+                                        <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"
+                                            :disabled="invalid"> Save
+                                        </v-btn>
+                                    </v-card-actions>
+                                </form>
+                            </ValidationObserver>
                         </v-card>
+                        <!-- ADD AND EDIT MODAL END -->
 
                     </v-dialog>
                     <v-dialog v-model="dialogDelete" max-width="500px">
@@ -87,7 +100,7 @@
 </template>
     
 <script>
-import ProjectsAPI from "../../api/projects/api";
+import ProjectsAPI from "../../api/projects/api"
 
 export default {
     name: "ProjectsPage",
@@ -101,6 +114,7 @@ export default {
         snackbarColor: '',
         responseMessage: '',
         timeout: 5000,
+        loadingDataTable: true,
         headers: [
             {
                 text: "Name",
@@ -141,16 +155,16 @@ export default {
 
     computed: {
         formTitle() {
-            return this.editedIndex === -1 ? "Add Project" : "Edit Project";
+            return this.editedIndex === -1 ? "Add Project" : "Edit Project"
         },
     },
 
     watch: {
         dialog(val) {
-            val || this.close();
+            val || this.close()
         },
         dialogDelete(val) {
-            val || this.closeDelete();
+            val || this.closeDelete()
         },
     },
 
@@ -161,14 +175,16 @@ export default {
 
     methods: {
         async initialize() {
-            const api_response = await ProjectsAPI.list();
+            const api_response = await ProjectsAPI.list()
 
             if (api_response.status === 1) {
-                console.log(api_response);
-                this.projects = api_response.outputData.data.payload;
+                console.log(api_response)
+                this.projects = api_response.outputData.data.payload
             } else if (api_response.status === 0) {
-                console.log(api_response.outputData.response.data.message);
+                console.log(api_response.outputData.response.data.message)
             }
+
+            this.loadingDataTable = false
         },
 
         handleClick(row) {
@@ -182,11 +198,11 @@ export default {
                   */
 
             // or just do something with your current clicked row item data
-            console.log(row.name);
+            console.log(row.name)
         },
 
         formatDate(date) {
-            var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+            var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }
             date = new Date(date)
             date = date.toLocaleDateString("en-US", options)
             return date
@@ -194,16 +210,16 @@ export default {
 
         editItem(item) {
             console.log(item)
-            this.editedIndex = this.projects.indexOf(item);
-            this.editedItem = Object.assign({}, item);
-            this.dialog = true;
+            this.editedIndex = this.projects.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.dialog = true
         },
 
         deleteItem(item) {
             console.log(item)
-            this.editedIndex = this.projects.indexOf(item);
-            this.editedItem = Object.assign({}, item);
-            this.dialogDelete = true;
+            this.editedIndex = this.projects.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.dialogDelete = true
         },
 
         async deleteItemConfirm(id) {
@@ -211,18 +227,18 @@ export default {
             const payload = {
                 "id": id
             }
-            const api_response = await ProjectsAPI.deactivate(payload);
+            const api_response = await ProjectsAPI.deactivate(payload)
 
             if (api_response.status === 1) {
-                console.log(api_response);
-                this.projects = api_response.outputData.data.payload;
+                console.log(api_response)
+                this.projects = api_response.outputData.data.payload
                 this.responseMessage = api_response.outputData.data.message
                 this.snackbarColor = 'success'
                 this.snackbar = true
                 this.projects = []
                 this.initialize()
             } else if (api_response.status === 0) {
-                console.log(api_response.outputData.response.data.message);
+                console.log(api_response.outputData.response.data.message)
                 this.responseMessage = api_response.outputData.data.message
                 this.snackbarColor = 'error'
                 this.snackbar = true
@@ -230,45 +246,48 @@ export default {
                 this.initialize()
             }
 
-            //this.projects.splice(this.editedIndex, 1);
-            this.closeDelete();
+            //this.projects.splice(this.editedIndex, 1)
+            this.closeDelete()
         },
 
         close() {
-            this.dialog = false;
+            this.$refs.form.reset()
+            this.dialog = false
             this.$nextTick(() => {
-                this.editedItem = Object.assign({}, this.defaultItem);
-                this.editedIndex = -1;
-            });
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+            })
         },
 
         closeDelete() {
-            this.dialogDelete = false;
+            this.dialogDelete = false
             this.$nextTick(() => {
-                this.editedItem = Object.assign({}, this.defaultItem);
-                this.editedIndex = -1;
-            });
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+            })
         },
 
         async save(id = null, name) {
+            this.$refs.form.validate()
+
             if (this.editedIndex === -1) {
                 //ADD ITEM
 
                 const payload = {
                     "name": name
                 }
-                const api_response = await ProjectsAPI.add(payload);
+                const api_response = await ProjectsAPI.add(payload)
 
                 if (api_response.status === 1) {
-                    console.log(api_response);
-                    this.projects = api_response.outputData.data.payload;
+                    console.log(api_response)
+                    this.projects = api_response.outputData.data.payload
                     this.responseMessage = api_response.outputData.data.message
                     this.snackbarColor = 'success'
                     this.snackbar = true
                     this.projects = []
                     this.initialize()
                 } else if (api_response.status === 0) {
-                    console.log(api_response.outputData.response.data.message);
+                    console.log(api_response.outputData.response.data.message)
                     this.responseMessage = api_response.outputData.data.message
                     this.snackbarColor = 'error'
                     this.snackbar = true
@@ -283,18 +302,18 @@ export default {
                     "id": id,
                     "name": name
                 }
-                const api_response = await ProjectsAPI.edit(payload);
+                const api_response = await ProjectsAPI.edit(payload)
 
                 if (api_response.status === 1) {
-                    console.log(api_response);
-                    this.projects = api_response.outputData.data.payload;
+                    console.log(api_response)
+                    this.projects = api_response.outputData.data.payload
                     this.responseMessage = api_response.outputData.data.message
                     this.snackbarColor = 'success'
                     this.snackbar = true
                     this.projects = []
                     this.initialize()
                 } else if (api_response.status === 0) {
-                    console.log(api_response.outputData.response.data.message);
+                    console.log(api_response.outputData.response.data.message)
                     this.responseMessage = api_response.outputData.data.message
                     this.snackbarColor = 'error'
                     this.snackbar = true
@@ -303,9 +322,9 @@ export default {
                 }
             }
 
-            this.close();
+            this.close()
         },
     },
-};
+}
 </script>
     

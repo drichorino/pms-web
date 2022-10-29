@@ -1,64 +1,55 @@
 <template>
-<div>
-    <v-data-table :headers="headers" :items="sites" :search="search" @click:row="handleClick" sort-by="name"
-        class="elevation-1">
-        <template v-slot:item.created_at="{ item }">
-              {{ formatDate(item.created_at) }}
-        </template>
-        <template v-slot:item.deleted_at="{ item }">
-            {{ formatDate(item.deleted_at) }}
-        </template>
+    <div>
+        <v-data-table :headers="headers" :items="sites" :search="search" @click:row="handleClick" sort-by="name"
+            class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
+            <template v-slot:item.created_at="{ item }">
+                {{ formatDate(item.created_at) }}
+            </template>
+            <template v-slot:item.deleted_at="{ item }">
+                {{ formatDate(item.deleted_at) }}
+            </template>
 
-        <template v-slot:top>
-            <v-toolbar flat>
-                <v-toolbar-title>Archived Sites List</v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-spacer></v-spacer>
-                <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line outlined
-                    hide-details clearable rounded dense></v-text-field>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-dialog v-model="dialogDelete" max-width="500px">
-                    <v-card>
-                        <v-card-title class="text-h6">Are you sure you want to reactivate this project?</v-card-title>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="closeRestore">Cancel</v-btn>
-                            <v-btn color="blue darken-1" text @click="restoreItemConfirm(editedItem.id)">OK</v-btn>
-                            <v-spacer></v-spacer>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-toolbar>
-        </template>
-        <template v-slot:item.actions="{ item }">
-            <v-icon small @click="restoreItem(item)"> mdi-restore </v-icon>
-        </template>
-        <template v-slot:no-data> No archived sites. </template>
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-toolbar-title>Archived Sites List</v-toolbar-title>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line outlined
+                        hide-details clearable rounded dense></v-text-field>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-dialog v-model="dialogDelete" max-width="500px">
+                        <v-card>
+                            <v-card-title class="text-h6">Are you sure you want to reactivate this project?
+                            </v-card-title>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text @click="closeRestore">Cancel</v-btn>
+                                <v-btn color="blue darken-1" text @click="restoreItemConfirm(editedItem.id)">OK</v-btn>
+                                <v-spacer></v-spacer>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
+            </template>
+            <template v-slot:item.actions="{ item }">
+                <v-icon small @click="restoreItem(item)"> mdi-restore </v-icon>
+            </template>
+            <template v-slot:no-data> No archived sites. </template>
 
-        
-    </v-data-table>
-    <div class="text-center">   
-        <v-snackbar
-          v-model="snackbar"
-          :timeout="timeout"
-          :color="snackbarColor"
-          absolute
-        >
-          {{ responseMessage }}
-    
-          <template v-slot:action="{ attrs }">
-            <v-btn
-              color="white"
-              text
-              v-bind="attrs"
-              @click="snackbar = false"
-            >
-              Close
-            </v-btn>
-          </template>
-        </v-snackbar>
-      </div>
-</div>
+
+        </v-data-table>
+        <div class="text-center">
+            <v-snackbar v-model="snackbar" :timeout="timeout" :color="snackbarColor" absolute>
+                {{ responseMessage }}
+
+                <template v-slot:action="{ attrs }">
+                    <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
+                        Close
+                    </v-btn>
+                </template>
+            </v-snackbar>
+        </div>
+    </div>
 
 </template>
 
@@ -77,6 +68,7 @@ export default {
         snackbarColor: '',
         responseMessage: '',
         timeout: 5000,
+        loadingDataTable: true,
         headers: [
             {
                 text: "Name",
@@ -98,7 +90,7 @@ export default {
                 sortable: true,
                 value: "deleted_at",
                 class: "blue--text",
-            },            
+            },
             {
                 text: "Actions",
                 value: "actions",
@@ -145,6 +137,8 @@ export default {
             } else if (api_response.status === 0) {
                 console.log(api_response.outputData.response.data.message);
             }
+
+            this.loadingDataTable = false
         },
 
         handleClick(row) {
@@ -161,7 +155,7 @@ export default {
             console.log(row.name);
         },
 
-        formatDate (date) {
+        formatDate(date) {
             var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
             date = new Date(date)
             date = date.toLocaleDateString("en-US", options)
@@ -249,7 +243,7 @@ export default {
                 this.sites = []
                 this.initialize()
             }
-            
+
             this.close();
         },
     },
