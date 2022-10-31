@@ -65,8 +65,7 @@
 import UsersAPI from "../../api/users/api"
 
 export default {
-
-    name: 'UsersPage',
+    name: 'ArchivedUsersPage',
 
     data: () => ({
         users: [],

@@ -242,8 +242,8 @@ export default {
                 this.responseMessage = api_response.outputData.data.message
                 this.snackbarColor = 'error'
                 this.snackbar = true
-                //this.sites = []
-                //this.initialize()
+                this.sites = []
+                this.initialize()
             }
 
             //this.sites.splice(this.editedIndex, 1);
