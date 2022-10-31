@@ -109,6 +109,18 @@ class UsersAPI {
 
         return promise
     }
+
+    static logout = async payload => {
+        let promise = await base.POST({
+            slug: 'logout/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
 }
 
 export default UsersAPI

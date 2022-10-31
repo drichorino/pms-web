@@ -2,8 +2,13 @@
     <v-app dark>
 
         <v-navigation-drawer v-model="drawer" :mini-variant="miniVariant" :clipped="clipped" fixed app>
-            <v-list>
+            <template v-slot:append>
+                <div class="pa-2 mb-2">
+                    <v-btn color="primary" block @click="logout">Logout</v-btn>
+                </div>
+            </template>
 
+            <v-list>
                 <v-list-item :to="dashboard" @click="clear()">
                     <v-list-item-icon>
                         <v-icon>mdi-home</v-icon>
@@ -67,9 +72,12 @@
             <span>&copy; {{ new Date().getFullYear() }}</span>
         </v-footer>
     </v-app>
+
 </template>
 
 <script>
+import UsersAPI from "../api/users/api"
+
 export default {
     name: 'DefaultLayout',
     data() {
@@ -140,9 +148,29 @@ export default {
         }
     },
 
+    async created() {
+        const current_user = await UsersAPI.current()
+        console.log(current_user)
+        if (current_user.status === 0) {
+            this.$router.push('/')
+        }
+    },
+
     methods: {
         clear() {
             this.items.map((item) => item.active = false)
+        },
+
+        async logout() {
+            const api_response = await UsersAPI.logout()
+            if (api_response.status === 1) {
+                console.log(api_response)
+                this.$router.push('/')
+            } else if (api_response.status === 0) {
+                console.log(api_response.outputData.response.data.message)
+                this.$router.push('/')
+
+            }
         }
     }
 }
