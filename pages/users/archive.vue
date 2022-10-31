@@ -1,49 +1,64 @@
 <template>
-    <v-data-table :headers="headers" :items="users" :search="search" @click:row="handleClick" sort-by="last_name"
-        class="elevation-1">
-        <template v-slot:item.is_superuser="{ item }">
-            <v-chip :color="isSuperuserColor(item.is_superuser)" dark>
-                {{ isSuperuser(item.is_superuser) }}
-            </v-chip>
-        </template>
+    <div>
+        <v-data-table :headers="headers" :items="users" :search="search" @click:row="handleClick" sort-by="last_name"
+            class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
+            <template v-slot:item.is_superuser="{ item }">
+                <v-chip :color="isSuperuserColor(item.is_superuser)" dark>
+                    {{ isSuperuser(item.is_superuser) }}
+                </v-chip>
+            </template>
 
-        <template v-slot:item.is_staff="{ item }">
-            <v-chip :color="isStaffColor(item.is_staff)" dark>
-                {{ isStaff(item.is_staff) }}
-            </v-chip>
-        </template>
+            <template v-slot:item.is_staff="{ item }">
+                <v-chip :color="isStaffColor(item.is_staff)" dark>
+                    {{ isStaff(item.is_staff) }}
+                </v-chip>
+            </template>
 
-        <template v-slot:top>
-            <v-toolbar flat>
-                <v-toolbar-title>Archived Users List</v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-spacer></v-spacer>
-                <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line outlined
-                    hide-details clearable rounded dense></v-text-field>
-                <v-divider class="mx-4" inset vertical></v-divider>
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-toolbar-title>Archived Users List</v-toolbar-title>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line outlined
+                        hide-details clearable rounded dense></v-text-field>
+                    <v-divider class="mx-4" inset vertical></v-divider>
 
-                <v-dialog v-model="dialogRestore" max-width="500px">
-                    <v-card>
-                        <v-card-title class="text-center">Are you sure you want to reactivate this user?</v-card-title>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="closeRestore">Cancel</v-btn>
-                            <v-btn color="blue darken-1" text @click="restoreItemConfirm">OK</v-btn>
-                            <v-spacer></v-spacer>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-toolbar>
-        </template>
-        <template v-slot:item.actions="{ item }">
-            <v-icon small @click="restoreItem(item)">
-                mdi-restore
-            </v-icon>
-        </template>
-        <template v-slot:no-data>
-            {{ noDataMessage }}
-        </template>
-    </v-data-table>
+                    <v-dialog v-model="dialogRestore" max-width="500px">
+                        <v-card>
+                            <v-card-title class="text-center">Are you sure you want to reactivate this user?
+                            </v-card-title>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text @click="closeRestore">Cancel</v-btn>
+                                <v-btn color="blue darken-1" text @click="restoreItemConfirm(editedItem.email)">OK
+                                </v-btn>
+                                <v-spacer></v-spacer>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
+            </template>
+            <template v-slot:item.actions="{ item }">
+                <v-icon small @click="restoreItem(item)">
+                    mdi-restore
+                </v-icon>
+            </template>
+            <template v-slot:no-data>
+                {{ noDataMessage }}
+            </template>
+        </v-data-table>
+        <div class="text-center">
+            <v-snackbar v-model="snackbar" :timeout="timeout" :color="snackbarColor" absolute>
+                {{ responseMessage }}
+
+                <template v-slot:action="{ attrs }">
+                    <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
+                        Close
+                    </v-btn>
+                </template>
+            </v-snackbar>
+        </div>
+    </div>
 </template>
   
 <script>
@@ -58,7 +73,12 @@ export default {
         search: '',
         dialog: false,
         dialogRestore: false,
+        snackbar: false,
+        snackbarColor: '',
         noDataMessage: '',
+        loadingDataTable: true,
+        responseMessage: '',
+        timeout: 7000,
         headers: [
             {
                 text: 'First Name',
@@ -131,18 +151,25 @@ export default {
 
     async created() {
         // fetch on init
-        const api_response = await UsersAPI.archive()
+        this.initialize()
 
-        if (api_response.status === 1) {
-            console.log(api_response)
-            this.users = api_response.outputData.data.payload
-        } else if (api_response.status === 0) {
-            console.log(api_response.outputData.response.data.message)
-            this.noDataMessage = api_response.outputData.response.data.message
-        }
     },
 
     methods: {
+        async initialize() {
+            const api_response = await UsersAPI.archive()
+
+            if (api_response.status === 1) {
+                console.log(api_response)
+                this.users = api_response.outputData.data.payload
+            } else if (api_response.status === 0) {
+                console.log(api_response.outputData.response.data.message)
+                this.noDataMessage = api_response.outputData.response.data.message
+            }
+
+            this.loadingDataTable = false
+        },
+
         handleClick(row) {
             // set active row and deselect others
             /*
@@ -183,9 +210,31 @@ export default {
             this.dialogRestore = true
         },
 
-        restoreItemConfirm() {
-            this.users.splice(this.editedIndex, 1)
-            this.closeRestore()
+        async restoreItemConfirm(email) {
+            console.log(email)
+            const payload = {
+                "email": email
+            }
+            const api_response = await UsersAPI.restore(payload);
+
+            if (api_response.status === 1) {
+                console.log(api_response);
+                this.users = api_response.outputData.data.payload;
+                this.responseMessage = api_response.outputData.data.message
+                this.snackbarColor = 'success'
+                this.snackbar = true
+                this.users = []
+                this.initialize()
+            } else if (api_response.status === 0) {
+                console.log(api_response.outputData.response.data.message);
+                this.responseMessage = api_response.outputData.response.data.message
+                this.snackbarColor = 'error'
+                this.snackbar = true
+                this.users = []
+                this.initialize()
+            }
+
+            this.closeRestore();
         },
 
         close() {

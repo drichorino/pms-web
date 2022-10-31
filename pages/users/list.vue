@@ -77,19 +77,21 @@
                                             </v-row>
                                             <v-row>
                                                 <v-col cols="12" sm="6" md="6">
+
                                                     <ValidationProvider v-slot="{ errors }" name="Password"
-                                                        rules="confirmed:confirm_password|required">
+                                                        :rules="passwordRules">
                                                         <v-text-field v-model="editedItem.password"
                                                             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                                                             :type="showPassword ? 'text' : 'password'" name="input-10-2"
                                                             label="Password" class="input-group--focused"
                                                             @click:append="showPassword = !showPassword"
                                                             :error-messages="errors" required>
-                                                        </v-text-field>
+                                                        </v-text-field>                                                        
                                                     </ValidationProvider>
+
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="6">
-                                                    <ValidationProvider v-slot="{ errors }" rules="required"
+                                                    <ValidationProvider v-slot="{ errors }" name="Confirm Password"
                                                         vid="confirm_password">
                                                         <v-text-field v-model="editedItem.confirm_password"
                                                             :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'"
@@ -97,9 +99,13 @@
                                                             name="input-10-2" label="Confirm Password"
                                                             class="input-group--focused"
                                                             @click:append="showConfirmPassword = !showConfirmPassword"
+                                                            @change="requirePassword(editedItem.confirm_password)"
+                                                            :error-messages="errors"
                                                             required>
                                                         </v-text-field>
+                                                        
                                                     </ValidationProvider>
+
                                                 </v-col>
                                             </v-row>
                                             <v-row>
@@ -129,18 +135,18 @@
                                 </form>
                             </ValidationObserver>
                         </v-card>
-
-
-                        <!-- ADD AND EDIT MODAL END -->
-
                     </v-dialog>
+
+                    <!-- ADD AND EDIT MODAL END -->
+
+
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
                             <v-card-title class="text-h6">Are you sure you want to delete this user?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.id)">OK</v-btn>
+                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.email)">OK</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -189,9 +195,11 @@ export default {
         snackbar: false,
         snackbarColor: '',
         responseMessage: '',
-        timeout: 5000,
+        timeout: 7000,
         showPassword: false,
         showConfirmPassword: false,
+        passwordRow: true,
+        passwordRules: 'confirmed:confirm_password|required|min:6',
         headers: [
             {
                 text: 'Last Name',
@@ -236,6 +244,7 @@ export default {
         ],
         editedIndex: -1,
         editedItem: {
+            id: '',
             first_name: '',
             last_name: '',
             email: '',
@@ -245,6 +254,7 @@ export default {
             is_staff: true,
         },
         defaultItem: {
+            id: '',
             first_name: '',
             last_name: '',
             email: '',
@@ -290,7 +300,7 @@ export default {
         },
 
         formatDate(date) {
-            var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+            var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }
             date = new Date(date)
             date = date.toLocaleDateString("en-US", options)
             return date
@@ -333,46 +343,57 @@ export default {
         editItem(item) {
             this.editedIndex = this.users.indexOf(item)
             this.editedItem = Object.assign({}, item)
+            this.passwordRules = 'confirmed:confirm_password|min:6'
             this.dialog = true
         },
 
-        deleteItem(item) {
-            this.editedIndex = this.users.indexOf(item)
-            this.editedItem = Object.assign({}, item)
-            this.dialogDelete = true
+        async deleteItem(item) {
+            const current_user = await UsersAPI.current()
+            const current_email = current_user.outputData.data.payload.email
+
+            if(current_email == item.email){
+                this.responseMessage = 'You are not allowed to deactivate the current logged in user.'
+                this.snackbarColor = 'error'
+                this.snackbar = true
+            } else {
+                this.editedIndex = this.users.indexOf(item)
+                this.editedItem = Object.assign({}, item)
+                this.dialogDelete = true
+            }
         },
 
-        async deleteItemConfirm(id) {
-            console.log(id)
+        async deleteItemConfirm(email) {
+            
             const payload = {
-                "id": id
+                "email": email
             }
-            const api_response = await UsersAPI.deactivate(payload);
+            const api_response = await UsersAPI.deactivate(payload)
 
             if (api_response.status === 1) {
-                console.log(api_response);
-                this.users = api_response.outputData.data.payload;
+                console.log(api_response)
+                this.users = api_response.outputData.data.payload
                 this.responseMessage = api_response.outputData.data.message
                 this.snackbarColor = 'success'
                 this.snackbar = true
                 this.users = []
                 this.initialize()
             } else if (api_response.status === 0) {
-                console.log(api_response.outputData.response.data.message);
-                this.responseMessage = api_response.outputData.data.message
+                console.log(api_response.outputData.response.data.message)
+                this.responseMessage = api_response.outputData.response.data.message
                 this.snackbarColor = 'error'
                 this.snackbar = true
                 this.users = []
                 this.initialize()
             }
 
-            //this.users.splice(this.editedIndex, 1);
-            this.closeDelete();
+            //this.users.splice(this.editedIndex, 1)
+            this.closeDelete()
         },
 
         close() {
-            this.$refs.form.reset();
+            this.$refs.form.reset()
             this.dialog = false
+            this.passwordRules = 'confirmed:confirm_password|required|min:6'
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
@@ -387,7 +408,7 @@ export default {
             })
         },
 
-        async save(id = null, first_name, last_name, email, password, confirm_password, is_superuser, is_staff) {
+        async save(id = null, first_name, last_name, email, password = '', confirm_password = '', is_superuser, is_staff) {
             this.$refs.form.validate()
 
             if (this.editedIndex === -1) {
@@ -403,19 +424,19 @@ export default {
                     "is_staff": is_staff,
                     "is_active": true
                 }
-                const api_response = await UsersAPI.create(payload);
+                const api_response = await UsersAPI.create(payload)
 
                 if (api_response.status === 1) {
-                    console.log(api_response);
-                    this.users = api_response.outputData.data.payload;
+                    console.log(api_response)
+                    this.users = api_response.outputData.data.payload
                     this.responseMessage = api_response.outputData.data.message
                     this.snackbarColor = 'success'
                     this.snackbar = true
                     this.users = []
                     this.initialize()
                 } else if (api_response.status === 0) {
-                    console.log(api_response.outputData.response.data.message);
-                    this.responseMessage = api_response.outputData.data.message
+                    console.log(api_response.outputData.response.data.message)
+                    this.responseMessage = api_response.outputData.response.data.message
                     this.snackbarColor = 'error'
                     this.snackbar = true
                     this.users = []
@@ -427,21 +448,28 @@ export default {
                 //EDIT ITEM
                 const payload = {
                     "id": id,
-                    "name": name
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "email": email,
+                    "password": password,
+                    "confirm_password": confirm_password,
+                    "is_superuser": is_superuser,
+                    "is_staff": is_staff,
+                    "is_active": true
                 }
-                const api_response = await UsersAPI.edit(payload);
+                const api_response = await UsersAPI.edit(payload)
 
                 if (api_response.status === 1) {
-                    console.log(api_response);
-                    this.users = api_response.outputData.data.payload;
+                    console.log(api_response)
+                    this.users = api_response.outputData.data.payload
                     this.responseMessage = api_response.outputData.data.message
                     this.snackbarColor = 'success'
                     this.snackbar = true
                     this.users = []
                     this.initialize()
                 } else if (api_response.status === 0) {
-                    console.log(api_response.outputData.response.data.message);
-                    this.responseMessage = api_response.outputData.data.message
+                    console.log(api_response.outputData.response.data.message)
+                    this.responseMessage = api_response.outputData.response.data.message
                     this.snackbarColor = 'error'
                     this.snackbar = true
                     this.users = []
@@ -449,7 +477,15 @@ export default {
                 }
             }
 
-            this.close();
+            this.close()
+        },
+
+        requirePassword(confirm_password) {
+            if (confirm_password) {
+                this.passwordRules = 'confirmed:confirm_password|required|min:6'
+            } else {
+                this.passwordRules = 'confirmed:confirm_password|min:6'
+            }
         },
     },
 }

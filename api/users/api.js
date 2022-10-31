@@ -62,9 +62,45 @@ class UsersAPI {
         return promise
     }
 
+    static deactivate = async payload => {
+        let promise = await base.POST({
+            slug: 'users/deactivate/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
+
+    static restore = async payload => {
+        let promise = await base.POST({
+            slug: 'users/restore/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
+
     static archive = async payload => {
         let promise = await base.GET({
             slug: 'users/archive/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
+
+    static current = async payload => {
+        let promise = await base.GET({
+            slug: 'users/current/',
             payload: payload,
             headers: {},
             success: data => success(data),
