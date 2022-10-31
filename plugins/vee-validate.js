@@ -12,6 +12,7 @@ const dictionary = {
         messages: {
             required: () => '* Required',
             confirmed: () => 'Passwords do not match.',
+            min: () => 'At least 6 characters is required.',
         },
     },
 };
