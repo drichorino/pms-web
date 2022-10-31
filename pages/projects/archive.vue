@@ -67,7 +67,7 @@ export default {
         snackbar: false,
         snackbarColor: '',
         responseMessage: '',
-        timeout: 5000,
+        timeout: 7000,
         loadingDataTable: true,
         headers: [
             {
@@ -193,7 +193,7 @@ export default {
                 this.initialize()
             } else if (api_response.status === 0) {
                 console.log(api_response.outputData.response.data.message)
-                this.responseMessage = api_response.outputData.data.message
+                this.responseMessage = api_response.outputData.response.data.message
                 this.snackbarColor = 'error'
                 this.snackbar = true
                 this.projects = []
