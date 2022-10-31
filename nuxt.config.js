@@ -76,6 +76,8 @@ export default {
         }
     },
 
+    loading: '~/components/LoadingBar.vue',
+
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {
         transpile: [
