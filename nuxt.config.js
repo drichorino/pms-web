@@ -82,7 +82,6 @@ export default {
     build: {
         transpile: [
             "vee-validate/dist/rules"
-          ],
-
+        ],
     }
 }
