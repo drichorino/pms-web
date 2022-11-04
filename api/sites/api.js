@@ -73,6 +73,18 @@ class SitesAPI {
 
         return promise
     }
+
+    static view = async payload => {
+        let promise = await base.POST({
+            slug: 'sites/view/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
 }
 
 export default SitesAPI

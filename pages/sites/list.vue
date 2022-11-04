@@ -1,13 +1,20 @@
 <template>
     <div>
-        <v-data-table :headers="headers" :items="sites" :search="search" @click:row="handleClick" sort-by="name"
-            class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
+        <v-data-table :headers="headers" :items="sites" :search="search" sort-by="name" class="elevation-1"
+            :loading="loadingDataTable" loading-text="Loading... Please wait">
+
+            <template v-slot:item.name="{ item }">
+                <span id="name" @click="handleClick(item.id)">{{ item.name }}</span>
+            </template>
+
             <template v-slot:item.created_at="{ item }">
                 {{ formatDate(item.created_at) }}
             </template>
             <template v-slot:item.updated_at="{ item }">
                 {{ formatDate(item.updated_at) }}
             </template>
+
+
 
             <template v-slot:top>
                 <v-toolbar flat>
@@ -60,9 +67,9 @@
                                 </form>
                             </ValidationObserver>
                         </v-card>
-                        <!-- ADD AND EDIT MODAL END-->
-
                     </v-dialog>
+                    <!-- ADD AND EDIT MODAL END-->
+
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
                             <v-card-title class="text-h6">Are you sure you want to delete this project?</v-card-title>
@@ -77,8 +84,8 @@
                 </v-toolbar>
             </template>
             <template v-slot:item.actions="{ item }">
-                <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-                <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+                <v-icon small class="mr-2" @click.stop.prevent="editItem(item)"> mdi-pencil </v-icon>
+                <v-icon small @click.stop.prevent="deleteItem(item)"> mdi-delete </v-icon>
             </template>
             <template v-slot:no-data> No active sites. </template>
 
@@ -187,7 +194,7 @@ export default {
             this.loadingDataTable = false
         },
 
-        handleClick(row) {
+        handleClick(site_id) {
             // set active row and deselect others
             /*
                   this.projects.map((item, index) => {
@@ -196,9 +203,9 @@ export default {
                       this.$set(this.projects, index, item)
                   })
                   */
-
-            // or just do something with your current clicked row item data
-            console.log(row.name);
+            //this.$router.push({ name: 'sites-view', params: { site_id } })
+            this.$router.push({ path: '/sites/view', query: { site_id: site_id } })
+            //console.log(site_id)
         },
 
         formatDate(date) {
@@ -327,3 +334,9 @@ export default {
     },
 };
 </script>
+
+<style type="text/css" scoped>
+#name {
+    cursor: pointer;
+}
+</style>
