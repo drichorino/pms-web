@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-data-table :headers="headers" :items="users" :search="search" @click:row="handleClick" sort-by="last_name"
-            class="elevation-1">
+            class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
             <template v-slot:item.created_at="{ item }">
                 {{ formatDate(item.created_at) }}
             </template>
@@ -86,7 +86,7 @@
                                                             label="Password" class="input-group--focused"
                                                             @click:append="showPassword = !showPassword"
                                                             :error-messages="errors" required>
-                                                        </v-text-field>                                                        
+                                                        </v-text-field>
                                                     </ValidationProvider>
 
                                                 </v-col>
@@ -100,10 +100,9 @@
                                                             class="input-group--focused"
                                                             @click:append="showConfirmPassword = !showConfirmPassword"
                                                             @change="requirePassword(editedItem.confirm_password)"
-                                                            :error-messages="errors"
-                                                            required>
+                                                            :error-messages="errors" required>
                                                         </v-text-field>
-                                                        
+
                                                     </ValidationProvider>
 
                                                 </v-col>
@@ -146,7 +145,8 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.email)">OK</v-btn>
+                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.email)">OK
+                                </v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -154,10 +154,10 @@
                 </v-toolbar>
             </template>
             <template v-slot:item.actions="{ item }">
-                <v-icon small class="mr-2" @click="editItem(item)">
+                <v-icon small class="mr-2" @click.stop.prevent="editItem(item)">
                     mdi-pencil
                 </v-icon>
-                <v-icon small @click="deleteItem(item)">
+                <v-icon small @click.stop.prevent="deleteItem(item)">
                     mdi-delete
                 </v-icon>
             </template>
@@ -316,7 +316,7 @@ export default {
             })
             */
 
-            // or just do something with your current clicked row item data
+            // or just do something with your current clicked row item data            
             console.log(row.first_name)
         },
 
@@ -351,7 +351,7 @@ export default {
             const current_user = await UsersAPI.current()
             const current_email = current_user.outputData.data.payload.email
 
-            if(current_email == item.email){
+            if (current_email == item.email) {
                 this.responseMessage = 'You are not allowed to deactivate the current logged in user.'
                 this.snackbarColor = 'error'
                 this.snackbar = true
@@ -363,7 +363,7 @@ export default {
         },
 
         async deleteItemConfirm(email) {
-            
+
             const payload = {
                 "email": email
             }
