@@ -150,7 +150,7 @@ export default {
 
     async created() {
         const current_user = await UsersAPI.current()
-        console.log(current_user)
+        //console.log(current_user)
         if (current_user.status === 0) {
             this.$router.push('/')
         }
