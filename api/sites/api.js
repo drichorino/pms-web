@@ -85,6 +85,18 @@ class SitesAPI {
 
         return promise
     }
+
+    static add_project = async payload => {
+        let promise = await base.POST({
+            slug: 'sites/add-project/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
 }
 
 export default SitesAPI
