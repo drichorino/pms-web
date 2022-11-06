@@ -223,7 +223,6 @@ export default {
         },
 
         deleteItem(item) {
-            console.log(item)
             this.editedIndex = this.sites.indexOf(item);
             this.editedItem = Object.assign({}, item);
             this.dialogDelete = true;
@@ -335,8 +334,14 @@ export default {
 };
 </script>
 
-<style type="text/css" scoped>
+<style lang="scss" scoped>
 #name {
     cursor: pointer;
+
+}
+
+#name:hover {    
+    font-weight: 400;
+    color: rgb(98, 162, 245);
 }
 </style>
