@@ -166,7 +166,7 @@ export default {
     }),
 
 
-    created() {
+    mounted() {
         this.initialize()
     },
 
@@ -184,6 +184,7 @@ export default {
 
         //site view
         async initialize() {
+            this.$nuxt.$loading.start()
             this.site_id = this.$route.query.site_id
 
             const payload = {
@@ -201,6 +202,7 @@ export default {
             } else if (api_response.status === 0) {
                 return this.$nuxt.error({ statusCode: 404 })
             }
+            this.$nuxt.$loading.finish()
         },
 
 
@@ -217,7 +219,7 @@ export default {
             }
 
             const api_response = await SitesAPI.add_project(payload)
-
+            this.$nuxt.$loading.finish()
             if (api_response.status === 1) {
                 this.responseMessage = api_response.outputData.data.message
                 this.snackbarColor = 'success'
@@ -232,7 +234,7 @@ export default {
 
             this.projects_to_add = []
             this.dialog = false
-            this.$nuxt.$loading.finish()
+            
         },
 
 
