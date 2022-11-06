@@ -97,6 +97,18 @@ class SitesAPI {
 
         return promise
     }
+
+    static unassign_project = async payload => {
+        let promise = await base.POST({
+            slug: 'sites/unassign-project/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
 }
 
 export default SitesAPI
