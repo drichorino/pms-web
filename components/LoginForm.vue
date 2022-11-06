@@ -50,7 +50,7 @@ export default {
     },
     methods: {
         async user_login() {
-
+            this.$nuxt.$loading.start()
             const credentials = {
                 "email": this.email,
                 "password": this.password
@@ -65,6 +65,7 @@ export default {
                 this.is_error = true
                 this.error_message = api_response.outputData.response.data.message
             }
+            this.$nuxt.$loading.finish()
         }
     }
 };
