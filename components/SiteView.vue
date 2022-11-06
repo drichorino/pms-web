@@ -2,13 +2,13 @@
     <v-container>
         <v-layout>
             <v-flex md-12>
-                <v-card>
-                    <v-card-title class="pa-5">
-                        <h2><span class="blue--text">SITE: </span>{{ site.name }}</h2>
+                <v-card class="pb-2">
+                    <v-card-title>
+                        <h2><span class="blue--text">SITE | </span>{{ site.name }}</h2>
                     </v-card-title>
 
-                    <v-card-actions>
-                        <v-dialog v-model="dialog" max-width="90%">
+                    <v-card-actions class="ml-2">
+                        <v-dialog v-model="dialog" max-width="80%">
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn color="primary mr-6" dark v-bind="attrs" v-on="on">
                                     Assign Project
@@ -16,19 +16,18 @@
                             </template>
                             <!-- ADD PROJECT MODAL START -->
                             <v-card class="pa-5">
-
-                                <v-combobox v-model="projects_to_add" :items="projects_not_in_site" item-text="name"
-                                    item-value="id" label="Select Projects" clearable outlined multiple chips
-                                    deletable-chips>
-                                </v-combobox>
-
-
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
                                     <v-btn color="blue darken-1" text @click="save()" :disabled="disabled"> Save
                                     </v-btn>
                                 </v-card-actions>
+                                <v-combobox v-model="projects_to_add" :items="projects_not_in_site" item-text="name"
+                                    item-value="id" label="Select Projects" clearable outlined multiple chips
+                                    deletable-chips>
+                                </v-combobox>
+
+
                             </v-card>
                         </v-dialog>
                         <v-btn color=primary>Edit Site</v-btn>
@@ -36,7 +35,7 @@
                     </v-card-actions>
                 </v-card>
 
-                
+
             </v-flex>
         </v-layout>
         <!-- ADD PROJECT MODAL END -->
@@ -53,20 +52,20 @@
 
                 <template v-slot:top>
                     <v-toolbar flat>
-                        <v-toolbar-title>Projects List</v-toolbar-title>
+                        <v-toolbar-title>Projects</v-toolbar-title>
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-spacer></v-spacer>
-                        <v-text-field v-model="searchProject" append-icon="mdi-magnify" label="Search" maxlength="100" single-line
-                            outlined hide-details clearable rounded dense></v-text-field>
-                        <v-divider class="mx-4" inset vertical></v-divider>
-                        
+                        <v-text-field v-model="searchProject" append-icon="mdi-magnify" label="Search" maxlength="100"
+                            single-line outlined hide-details clearable rounded dense></v-text-field>
                         <v-dialog v-model="dialogDelete" max-width="500px">
                             <v-card>
-                                <v-card-title class="text-h6">Are you sure you want to unassign this project?</v-card-title>
+                                <v-card-title class="text-h6">Are you sure you want to unassign this project?
+                                </v-card-title>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                                    <v-btn color="blue darken-1" text @click="unassignProjectConfirm(editedItem.id)">OK</v-btn>
+                                    <v-btn color="blue darken-1" text @click="unassignProjectConfirm(editedItem.id)">OK
+                                    </v-btn>
                                     <v-spacer></v-spacer>
                                 </v-card-actions>
                             </v-card>
@@ -77,8 +76,6 @@
                     <v-icon small @click.stop.prevent="unassignProject(item)"> mdi-delete </v-icon>
                 </template>
                 <template v-slot:no-data> No active projects. </template>
-
-
             </v-data-table>
         </v-card>
 
@@ -200,7 +197,7 @@ export default {
                 this.projects_not_in_site = api_response.outputData.data.payload.projects_not_in_site
                 this.projects_in_site = api_response.outputData.data.payload.projects_in_site
                 this.loadingDataTable = false
-                
+
             } else if (api_response.status === 0) {
                 return this.$nuxt.error({ statusCode: 404 })
             }
@@ -262,6 +259,7 @@ export default {
         },
 
         async unassignProjectConfirm(id) {
+            this.$nuxt.$loading.start()
             const payload = {
                 "project_id": id,
                 "site_id": this.site_id
@@ -282,6 +280,7 @@ export default {
             }
 
             this.closeDelete()
+            this.$nuxt.$loading.finish()
         },
     },
 }

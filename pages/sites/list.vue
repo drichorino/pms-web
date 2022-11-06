@@ -3,18 +3,17 @@
         <v-data-table :headers="headers" :items="sites" :search="search" sort-by="name" class="elevation-1"
             :loading="loadingDataTable" loading-text="Loading... Please wait">
 
-            <template v-slot:item.name="{ item }">
-                <span id="name" @click="handleClick(item.id)">{{ item.name }}</span>
+            <template v-slot:item="{ item }">
+                <tr :key="item.id" class="row-bg" @click="handleClick(item.id)">
+                    <td>{{ item.name }}</td>
+                    <td>{{ formatDate(item.created_at) }}</td>
+                    <td>{{ formatDate(item.updated_at) }}</td>
+                    <td>
+                        <v-icon small class="mr-2" @click.stop.prevent="editItem(item)"> mdi-pencil </v-icon>
+                        <v-icon small @click.stop.prevent="deleteItem(item)"> mdi-delete </v-icon>
+                    </td>
+                </tr>
             </template>
-
-            <template v-slot:item.created_at="{ item }">
-                {{ formatDate(item.created_at) }}
-            </template>
-            <template v-slot:item.updated_at="{ item }">
-                {{ formatDate(item.updated_at) }}
-            </template>
-
-
 
             <template v-slot:top>
                 <v-toolbar flat>
@@ -82,10 +81,6 @@
                         </v-card>
                     </v-dialog>
                 </v-toolbar>
-            </template>
-            <template v-slot:item.actions="{ item }">
-                <v-icon small class="mr-2" @click.stop.prevent="editItem(item)"> mdi-pencil </v-icon>
-                <v-icon small @click.stop.prevent="deleteItem(item)"> mdi-delete </v-icon>
             </template>
             <template v-slot:no-data> No active sites. </template>
 
@@ -195,6 +190,7 @@ export default {
         },
 
         handleClick(site_id) {
+            console.log(site_id);
             // set active row and deselect others
             /*
                   this.projects.map((item, index) => {
@@ -335,13 +331,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#name {
-    cursor: pointer;
-
+.row-bg {
+    display: table-row;
 }
 
-#name:hover {    
-    font-weight: 400;
-    color: rgb(98, 162, 245);
+.row-bg:hover {
+    cursor: pointer;
 }
 </style>
