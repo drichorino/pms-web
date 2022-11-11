@@ -11,3 +11,12 @@ body {
     margin: 0;
     background-color: #d8cfc9 !important;
 }
+
+.v-data-table__wrapper>table>tbody>tr:hover{
+    background-color: rgb(190, 237, 255) !important;
+    cursor: pointer;
+}
+
+.v-data-table__mobile-row__header {
+    color: #2196F3;
+}
