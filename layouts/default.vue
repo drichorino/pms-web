@@ -135,9 +135,13 @@ export default {
                     action: 'mdi-account-group',
                     items: [
                         {
-                            title: 'List',
-                            to: '/employees'
+                            title: 'Active Employees',
+                            to: '/employees/list'
                         },
+                        {
+                            title: 'Archived Employees',
+                            to: '/employees/archive'
+                        }
                     ],
                     title: 'Employees',
                 },
