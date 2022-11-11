@@ -1,18 +1,13 @@
 <template>
     <div>
-        <v-data-table :headers="headers" :items="sites" :search="search" sort-by="name" class="elevation-1"
+        <v-data-table :headers="headers" :items="sites" :search="search" sort-by="name" class="elevation-1" @click:row="handleClick"
             :loading="loadingDataTable" loading-text="Loading... Please wait">
 
-            <template v-slot:item="{ item }">
-                <tr :key="item.id" class="row-bg" @click="handleClick(item.id)">
-                    <td>{{ item.name }}</td>
-                    <td>{{ formatDate(item.created_at) }}</td>
-                    <td>{{ formatDate(item.updated_at) }}</td>
-                    <td>
-                        <v-icon small class="mr-2" @click.stop.prevent="editItem(item)"> mdi-pencil </v-icon>
-                        <v-icon small @click.stop.prevent="deleteItem(item)"> mdi-delete </v-icon>
-                    </td>
-                </tr>
+            <template v-slot:item.created_at="{ item }">
+                {{ formatDate(item.created_at) }}
+            </template>
+            <template v-slot:item.updated_at="{ item }">
+                {{ formatDate(item.updated_at) }}
             </template>
 
             <template v-slot:top>
@@ -189,8 +184,8 @@ export default {
             this.loadingDataTable = false
         },
 
-        handleClick(site_id) {
-            console.log(site_id);
+        handleClick(row) {
+            console.log(row.id);
             // set active row and deselect others
             /*
                   this.projects.map((item, index) => {
@@ -200,7 +195,7 @@ export default {
                   })
                   */
             //this.$router.push({ name: 'sites-view', params: { site_id } })
-            this.$router.push({ path: '/sites/view', query: { site_id: site_id } })
+            this.$router.push({ path: '/sites/view', query: { site_id: row.id } })
             //console.log(site_id)
         },
 
