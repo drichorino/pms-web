@@ -1,14 +1,13 @@
 <template>
     <div>
-        <SiteView />
-        <EmployeesView />
+        Employee
     </div>
 </template>
 <script>
 export default {
-
+    name: "EmployeesView"
 }
 </script>
-<style>
+<style lang="scss">
     
 </style>

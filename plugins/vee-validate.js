@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { extend, localize } from "vee-validate";
-import { required, email, min, confirmed } from "vee-validate/dist/rules";
+import { required, email, min, confirmed, double, digits } from "vee-validate/dist/rules";
 import { ValidationProvider, ValidationObserver } from 'vee-validate';
 
 Vue.component('ValidationProvider', ValidationProvider);
@@ -27,5 +27,9 @@ extend("email", email);
 extend("min", min);
 
 extend("confirmed", confirmed);
+
+extend("double", double);
+
+extend("digits", digits);
 
 localize(dictionary);

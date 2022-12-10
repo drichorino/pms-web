@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h3 class="page-title">ACTIVE PROJECTS</h3>
         <v-data-table :headers="headers" :items="projects" :search="search" @click:row="handleClick" sort-by="name"
             class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
             <template v-slot:item.created_at="{ item }">
@@ -10,12 +11,10 @@
             </template>
 
             <template v-slot:top>
-                <v-toolbar flat>
-                    <v-toolbar-title>Projects List</v-toolbar-title>
-                    <v-divider class="mx-4" inset vertical></v-divider>
-                    <v-spacer></v-spacer>
+                <v-toolbar flat>                    
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" maxlength="100" single-line
                         outlined hide-details clearable rounded dense></v-text-field>
+                    <v-spacer></v-spacer>
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
@@ -27,7 +26,7 @@
                         <!-- ADD AND EDIT MODAL START -->
                         <v-card>
                             <ValidationObserver ref="form" v-slot="{ invalid }">
-                                <form @submit.prevent="save(editedItem.id, editedItem.name)">
+                                <form @submit.prevent="save(editedItem)">
                                     <v-card-title>
                                         <span class="text-h6">{{ formTitle }}</span>
                                     </v-card-title>
@@ -46,6 +45,46 @@
                                                     </ValidationProvider>
                                                 </v-col>
                                             </v-row>
+                                            <v-row>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <ValidationProvider v-slot="{ errors }" name="Owner"
+                                                        rules="required">
+                                                        <v-text-field v-model="editedItem.owner" label="Owner"
+                                                            :counter="100" :error-messages="errors" maxlength="100"
+                                                            required>
+                                                        </v-text-field>
+                                                    </ValidationProvider>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <ValidationProvider v-slot="{ errors }" name="Contract Price"
+                                                        rules="double">
+                                                        <v-text-field v-model="editedItem.contract_price" label="Contract Price"
+                                                            :error-messages="errors"
+                                                            required>
+                                                        </v-text-field>
+                                                    </ValidationProvider>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <ValidationProvider v-slot="{ errors }" name="Total Payment"
+                                                        rules="double">
+                                                        <v-text-field v-model="editedItem.total_payment" label="Total Payment"
+                                                            :error-messages="errors"
+                                                            required>
+                                                        </v-text-field>
+                                                    </ValidationProvider>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <ValidationProvider v-slot="{ errors }" name="Balance"
+                                                        rules="double">
+                                                        <v-text-field v-model="editedItem.balance" label="Balance"
+                                                            :error-messages="errors"
+                                                            required>
+                                                        </v-text-field>
+                                                    </ValidationProvider>
+                                                </v-col>
+                                            </v-row>
                                         </v-container>
                                     </v-card-text>
 
@@ -53,7 +92,7 @@
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
                                         <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-                                        <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"
+                                        <v-btn color="blue darken-1" text @click="save(editedItem)"
                                             :disabled="invalid"> Save
                                         </v-btn>
                                     </v-card-actions>
@@ -65,11 +104,11 @@
                     </v-dialog>
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
-                            <v-card-title class="text-h6">Are you sure you want to delete this project?</v-card-title>
+                            <v-card-title class="text-h6">Are you sure you want to deactivate this project?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.id)">OK</v-btn>
+                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem)">OK</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -124,6 +163,34 @@ export default {
                 class: "blue--text",
             },
             {
+                text: "Owner",
+                align: "start",
+                sortable: true,
+                value: "owner",
+                class: "blue--text",
+            },
+            {
+                text: "Contract Price",
+                align: "start",
+                sortable: true,
+                value: "contract_price",
+                class: "blue--text",
+            },
+            {
+                text: "Total Payment",
+                align: "start",
+                sortable: true,
+                value: "total_payment",
+                class: "blue--text",
+            },
+            {
+                text: "Balance",
+                align: "start",
+                sortable: true,
+                value: "balance",
+                class: "blue--text",
+            },
+            {
                 text: "Created At",
                 align: "start",
                 sortable: true,
@@ -147,9 +214,17 @@ export default {
         editedIndex: -1,
         editedItem: {
             name: "",
+            owner: "",
+            contract_price: "",
+            total_payment: "",
+            balance: "",
         },
         defaultItem: {
             name: "",
+            owner: "",
+            contract_price: "",
+            total_payment: "",
+            balance: "",
         },
     }),
 
@@ -188,6 +263,7 @@ export default {
         },
 
         handleClick(row) {
+            console.log(row.id);
             // set active row and deselect others
             /*
                   this.projects.map((item, index) => {
@@ -196,9 +272,7 @@ export default {
                       this.$set(this.projects, index, item)
                   })
                   */
-
-            // or just do something with your current clicked row item data
-            console.log(row.name)
+            this.$router.push({ path: '/projects/view', query: { project_id: row.id } })
         },
 
         formatDate(date) {
@@ -222,10 +296,10 @@ export default {
             this.dialogDelete = true
         },
 
-        async deleteItemConfirm(id) {
-            console.log(id)
+        async deleteItemConfirm(item) {
+            console.log(item.id)
             const payload = {
-                "id": id
+                "id": item.id
             }
             const api_response = await ProjectsAPI.deactivate(payload)
 
@@ -267,15 +341,12 @@ export default {
             })
         },
 
-        async save(id = null, name) {
+        async save(item) {
             this.$refs.form.validate()
+            const payload = item
 
             if (this.editedIndex === -1) {
-                //ADD ITEM
-
-                const payload = {
-                    "name": name
-                }
+                //ADD ITEM                
                 const api_response = await ProjectsAPI.add(payload)
 
                 if (api_response.status === 1) {
@@ -298,10 +369,6 @@ export default {
             } else {
 
                 //EDIT ITEM
-                const payload = {
-                    "id": id,
-                    "name": name
-                }
                 const api_response = await ProjectsAPI.edit(payload)
 
                 if (api_response.status === 1) {
@@ -328,3 +395,15 @@ export default {
 }
 </script>
     
+<style lang="scss" scoped>
+
+.page-title {
+    color: white;
+    background-color: #1976D2;
+    margin-bottom: 12px;
+    padding: 6px 0 6px 0;
+    border-radius: 10px;
+    text-align: center;
+}
+
+</style>

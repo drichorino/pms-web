@@ -20,3 +20,13 @@ body {
 .v-data-table__mobile-row__header {
     color: #2196F3;
 }
+
+.v-data-table__mobile-table-row {
+    border-top: 2px solid #1976D2 !important;
+}
+
+.v-icon:hover {
+    background-color: #b1b1b1 !important;
+    border-radius: 50%;
+    //color: #c1e3ff !important;
+}

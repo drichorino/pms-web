@@ -1,7 +1,7 @@
 import base from '../base'
 import { success, fail } from '../api_response'
 
-class SitesAPI {
+class EmployeesAPI {
     static list = async payload => {
         let promise = await base.GET({
             slug: 'employees/list/',
@@ -111,4 +111,4 @@ class SitesAPI {
     }
 }
 
-export default SitesAPI
+export default EmployeesAPI

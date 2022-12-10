@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h3 class="page-title">ACTIVE USERS</h3>
         <v-data-table :headers="headers" :items="users" :search="search" @click:row="handleClick" sort-by="last_name"
             class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
             <template v-slot:item.created_at="{ item }">
@@ -22,12 +23,10 @@
             </template>
 
             <template v-slot:top>
-                <v-toolbar flat>
-                    <v-toolbar-title>Users List</v-toolbar-title>
-                    <v-divider class="mx-4" inset vertical></v-divider>
-                    <v-spacer></v-spacer>
+                <v-toolbar flat>                    
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" maxlength="100" single-line
                         outlined hide-details clearable rounded dense></v-text-field>
+                    <v-spacer></v-spacer>
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
@@ -141,7 +140,7 @@
 
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
-                            <v-card-title class="text-h6">Are you sure you want to delete this user?</v-card-title>
+                            <v-card-title class="text-h6">Are you sure you want to deactivate this user?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -200,6 +199,7 @@ export default {
         showConfirmPassword: false,
         passwordRow: true,
         passwordRules: 'confirmed:confirm_password|required|min:6',
+        loadingDataTable: true,
         headers: [
             {
                 text: 'Last Name',
@@ -297,6 +297,8 @@ export default {
                 console.log(api_response.outputData.response.data.message)
                 this.noDataMessage = api_response.outputData.response.data.message
             }
+
+            this.loadingDataTable = false
         },
 
         formatDate(date) {
@@ -490,3 +492,16 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+
+.page-title {
+    color: white;
+    background-color: #1976D2;
+    margin-bottom: 12px;
+    padding: 6px 0 6px 0;
+    border-radius: 10px;
+    text-align: center;
+}
+
+</style>

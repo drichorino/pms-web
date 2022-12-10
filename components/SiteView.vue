@@ -184,7 +184,6 @@ export default {
 
         //site view
         async initialize() {
-            this.$nuxt.$loading.start()
             this.site_id = this.$route.query.site_id
 
             const payload = {
@@ -202,7 +201,6 @@ export default {
             } else if (api_response.status === 0) {
                 return this.$nuxt.error({ statusCode: 404 })
             }
-            this.$nuxt.$loading.finish()
         },
 
 

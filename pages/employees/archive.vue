@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h3 class="page-title">ARCHIVED SITES</h3>
-        <v-data-table :headers="headers" :items="sites" :search="search" @click:row="handleClick" sort-by="name"
+        <h3 class="page-title">ARCHIVED PROJECTS</h3>
+        <v-data-table :headers="headers" :items="employees" :search="search" @click:row="handleClick" sort-by="name"
             class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
             <template v-slot:item.created_at="{ item }">
                 {{ formatDate(item.created_at) }}
@@ -18,7 +18,7 @@
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
-                            <v-card-title class="text-h6">Are you sure you want to reactivate this project?
+                            <v-card-title class="text-h6">Are you sure you want to reactivate this employee?
                             </v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -33,7 +33,7 @@
             <template v-slot:item.actions="{ item }">
                 <v-icon small @click="restoreItem(item)"> mdi-restore </v-icon>
             </template>
-            <template v-slot:no-data> No archived sites. </template>
+            <template v-slot:no-data> No archived employees. </template>
 
 
         </v-data-table>
@@ -51,15 +51,15 @@
     </div>
 
 </template>
-
+    
 <script>
-import SitesAPI from "../../api/sites/api";
+import EmployeesAPI from "../../api/employees/api"
 
 export default {
-    name: "ArchivedSitesPage",
+    name: "ArchivedEmployeesPage",
 
     data: () => ({
-        sites: [],
+        employees: [],
         search: "",
         dialog: false,
         dialogDelete: false,
@@ -108,16 +108,16 @@ export default {
 
     computed: {
         formTitle() {
-            return this.editedIndex === -1 ? "Add Site" : "Edit Site";
+            return this.editedIndex === -1 ? "Add Employee" : "Edit Employee"
         },
     },
 
     watch: {
         dialog(val) {
-            val || this.close();
+            val || this.close()
         },
         dialogDelete(val) {
-            val || this.closeRestore();
+            val || this.closeRestore()
         },
     },
 
@@ -128,13 +128,13 @@ export default {
 
     methods: {
         async initialize() {
-            const api_response = await SitesAPI.archive();
+            const api_response = await EmployeesAPI.archive()
 
             if (api_response.status === 1) {
-                console.log(api_response);
-                this.sites = api_response.outputData.data.payload;
+                console.log(api_response)
+                this.employees = api_response.outputData.data.payload
             } else if (api_response.status === 0) {
-                console.log(api_response.outputData.response.data.message);
+                console.log(api_response.outputData.response.data.message)
             }
 
             this.loadingDataTable = false
@@ -143,19 +143,19 @@ export default {
         handleClick(row) {
             // set active row and deselect others
             /*
-                  this.projects.map((item, index) => {
+                  this.employees.map((item, index) => {
                       item.selected = item === row
       
-                      this.$set(this.projects, index, item)
+                      this.$set(this.employees, index, item)
                   })
                   */
 
             // or just do something with your current clicked row item data
-            console.log(row.name);
+            console.log(row.name)
         },
 
         formatDate(date) {
-            var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+            var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }
             date = new Date(date)
             date = date.toLocaleDateString("en-US", options)
             return date
@@ -163,16 +163,16 @@ export default {
 
         editItem(item) {
             console.log(item)
-            this.editedIndex = this.sites.indexOf(item);
-            this.editedItem = Object.assign({}, item);
-            this.dialog = true;
+            this.editedIndex = this.employees.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.dialog = true
         },
 
         restoreItem(item) {
             console.log(item)
-            this.editedIndex = this.sites.indexOf(item);
-            this.editedItem = Object.assign({}, item);
-            this.dialogDelete = true;
+            this.editedIndex = this.employees.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.dialogDelete = true
         },
 
         async restoreItemConfirm(id) {
@@ -180,43 +180,43 @@ export default {
             const payload = {
                 "id": id
             }
-            const api_response = await SitesAPI.restore(payload);
+            const api_response = await EmployeesAPI.restore(payload)
 
             if (api_response.status === 1) {
-                console.log(api_response);
-                this.sites = api_response.outputData.data.payload;
+                console.log(api_response)
+                this.employees = api_response.outputData.data.payload
                 this.responseMessage = api_response.outputData.data.message
                 this.snackbarColor = 'success'
                 this.snackbar = true
-                this.sites = []
+                this.employees = []
                 this.initialize()
             } else if (api_response.status === 0) {
-                console.log(api_response.outputData.response.data.message);
+                console.log(api_response.outputData.response.data.message)
                 this.responseMessage = api_response.outputData.response.data.message
                 this.snackbarColor = 'error'
                 this.snackbar = true
-                this.sites = []
+                this.employees = []
                 this.initialize()
             }
 
-            //this.sites.splice(this.editedIndex, 1);
-            this.closeRestore();
+            //this.employees.splice(this.editedIndex, 1)
+            this.closeRestore()
         },
 
         close() {
-            this.dialog = false;
+            this.dialog = false
             this.$nextTick(() => {
-                this.editedItem = Object.assign({}, this.defaultItem);
-                this.editedIndex = -1;
-            });
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+            })
         },
 
         closeRestore() {
-            this.dialogDelete = false;
+            this.dialogDelete = false
             this.$nextTick(() => {
-                this.editedItem = Object.assign({}, this.defaultItem);
-                this.editedIndex = -1;
-            });
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+            })
         },
 
         async save(id, name) {
@@ -224,31 +224,31 @@ export default {
                 "id": id,
                 "name": name
             }
-            const api_response = await SitesAPI.edit(payload);
+            const api_response = await EmployeesAPI.edit(payload)
 
             if (api_response.status === 1) {
-                console.log(api_response);
-                this.sites = api_response.outputData.data.payload;
+                console.log(api_response)
+                this.employees = api_response.outputData.data.payload
                 this.responseMessage = api_response.outputData.data.message
                 this.snackbarColor = 'success'
                 this.snackbar = true
-                this.sites = []
+                this.employees = []
                 this.initialize()
             } else if (api_response.status === 0) {
-                console.log(api_response.outputData.response.data.message);
+                console.log(api_response.outputData.response.data.message)
                 this.responseMessage = api_response.outputData.data.message
                 this.snackbarColor = 'error'
                 this.snackbar = true
-                this.sites = []
+                this.employees = []
                 this.initialize()
             }
 
-            this.close();
+            this.close()
         },
     },
-};
+}
 </script>
-
+    
 <style lang="scss" scoped>
 
 .page-title {

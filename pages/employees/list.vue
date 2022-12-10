@@ -1,13 +1,11 @@
 <template>
     <div>
+        <h3 class="page-title">ACTIVE EMPLOYEES</h3>
         <v-data-table :headers="headers" :items="employees" :search="search" @click:row="handleClick" sort-by="name"
             class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
 
             <template v-slot:item.basic_rate="{ item }">
                 {{ formatCurrency(item.basic_rate) }}
-            </template>
-            <template v-slot:item.allowance_per_day="{ item }">
-                {{ formatCurrency(item.allowance_per_day) }}
             </template>
             <template v-slot:item.created_at="{ item }">
                 {{ formatDate(item.created_at) }}
@@ -19,11 +17,10 @@
 
             <template v-slot:top>
                 <v-toolbar flat>
-                    <v-toolbar-title>Employees List</v-toolbar-title>
-                    <v-divider class="mx-4" inset vertical></v-divider>
-                    <v-spacer></v-spacer>
+                    
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" maxlength="100" single-line
                         outlined hide-details clearable rounded dense></v-text-field>
+                    <v-spacer></v-spacer>
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
@@ -53,11 +50,29 @@
                                                         </v-text-field>
                                                     </ValidationProvider>
                                                 </v-col>
-                                                <v-col cols="12" sm="12" md="12">
+                                                <v-col cols="12" sm="6" md="6">
                                                     <ValidationProvider v-slot="{ errors }" name="Position"
                                                         rules="required">
                                                         <v-text-field v-model="editedItem.position" label="Position"
                                                             :counter="100" :error-messages="errors" maxlength="100"
+                                                            required>
+                                                        </v-text-field>
+                                                    </ValidationProvider>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <ValidationProvider v-slot="{ errors }" name="Phone Number"
+                                                        rules="digits:11">
+                                                        <v-text-field v-model="editedItem.phone_number" label="Phone Number"
+                                                            :counter="11" :error-messages="errors" maxlength="11"
+                                                            required>
+                                                        </v-text-field>
+                                                    </ValidationProvider>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <ValidationProvider v-slot="{ errors }" name="Basic Rate"
+                                                        rules="required|double">
+                                                        <v-text-field v-model="editedItem.basic_rate" label="Basic Rate"
+                                                            prefix="₱" placeholder="0.00" :error-messages="errors"
                                                             required>
                                                         </v-text-field>
                                                     </ValidationProvider>
@@ -82,11 +97,11 @@
                     </v-dialog>
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
-                            <v-card-title class="text-h6">Are you sure you want to delete this project?</v-card-title>
+                            <v-card-title class="text-h6">Are you sure you want to deactivate this employee?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.id)">OK</v-btn>
+                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem)">OK</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -155,13 +170,6 @@ export default {
                 class: "blue--text",
             },
             {
-                text: "Allowance",
-                align: "start",
-                sortable: true,
-                value: "allowance_per_day",
-                class: "blue--text",
-            },
-            {
                 text: "Phone Number",
                 align: "start",
                 sortable: true,
@@ -192,9 +200,16 @@ export default {
         editedIndex: -1,
         editedItem: {
             name: "",
+            position: "",
+            basic_rate: "",
+            phone_number: "",            
+
         },
         defaultItem: {
             name: "",
+            position: "",
+            basic_rate: "",
+            phone_number: "",
         },
     }),
 
@@ -271,10 +286,10 @@ export default {
             this.dialogDelete = true
         },
 
-        async deleteItemConfirm(id) {
-            console.log(id)
+        async deleteItemConfirm(item) {
+            console.log(item.id)
             const payload = {
-                "id": id
+                "id": item.id
             }
             const api_response = await EmployeesAPI.deactivate(payload)
 
@@ -317,62 +332,53 @@ export default {
         },
 
         async save(item) {
-            console.log(item)
+            this.$refs.form.validate()
+            const payload = item
 
-            //this.$refs.form.validate()
+            if (this.editedIndex === -1) {
+                //ADD ITEM
+                
+                const api_response = await EmployeesAPI.add(payload)
 
+                if (api_response.status === 1) {
+                    console.log(api_response)
+                    this.employees = api_response.outputData.data.payload
+                    this.responseMessage = api_response.outputData.data.message
+                    this.snackbarColor = 'success'
+                    this.snackbar = true
+                    this.employees = []
+                    this.initialize()
+                } else if (api_response.status === 0) {
+                    console.log(api_response.outputData.response.data.message)
+                    this.responseMessage = api_response.outputData.response.data.message
+                    this.snackbarColor = 'error'
+                    this.snackbar = true
+                    this.employees = []
+                    this.initialize()
+                }
 
-            // if (this.editedIndex === -1) {
-            //     //ADD ITEM
+            } else {
 
-            //     const payload = {
-            //         "name": name
-            //     }
-            //     const api_response = await EmployeesAPI.add(payload)
+                //EDIT ITEM
+                const api_response = await EmployeesAPI.edit(payload)
 
-            //     if (api_response.status === 1) {
-            //         console.log(api_response)
-            //         this.employees = api_response.outputData.data.payload
-            //         this.responseMessage = api_response.outputData.data.message
-            //         this.snackbarColor = 'success'
-            //         this.snackbar = true
-            //         this.employees = []
-            //         this.initialize()
-            //     } else if (api_response.status === 0) {
-            //         console.log(api_response.outputData.response.data.message)
-            //         this.responseMessage = api_response.outputData.response.data.message
-            //         this.snackbarColor = 'error'
-            //         this.snackbar = true
-            //         this.employees = []
-            //         this.initialize()
-            //     }
-
-            // } else {
-
-            //     //EDIT ITEM
-            //     const payload = {
-            //         "id": id,
-            //         "name": name
-            //     }
-            //     const api_response = await EmployeesAPI.edit(payload)
-
-            //     if (api_response.status === 1) {
-            //         console.log(api_response)
-            //         this.employees = api_response.outputData.data.payload
-            //         this.responseMessage = api_response.outputData.data.message
-            //         this.snackbarColor = 'success'
-            //         this.snackbar = true
-            //         this.employees = []
-            //         this.initialize()
-            //     } else if (api_response.status === 0) {
-            //         console.log(api_response.outputData.response.data.message)
-            //         this.responseMessage = api_response.outputData.response.data.message
-            //         this.snackbarColor = 'error'
-            //         this.snackbar = true
-            //         this.employees = []
-            //         this.initialize()
-            //     }
-            //}
+                if (api_response.status === 1) {
+                    console.log(api_response)
+                    this.employees = api_response.outputData.data.payload
+                    this.responseMessage = api_response.outputData.data.message
+                    this.snackbarColor = 'success'
+                    this.snackbar = true
+                    this.employees = []
+                    this.initialize()
+                } else if (api_response.status === 0) {
+                    console.log(api_response.outputData.response.data.message)
+                    this.responseMessage = api_response.outputData.response.data.message
+                    this.snackbarColor = 'error'
+                    this.snackbar = true
+                    this.employees = []
+                    this.initialize()
+                }
+            }
 
             this.close()
         },
@@ -382,6 +388,13 @@ export default {
     
 <style lang="scss" scoped>
 
-
+.page-title {
+    color: white;
+    background-color: #1976D2;
+    margin-bottom: 12px;
+    padding: 6px 0 6px 0;
+    border-radius: 10px;
+    text-align: center;
+}
 
 </style>

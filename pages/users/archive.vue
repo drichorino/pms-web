@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h3 class="page-title">ARCHIVED USERS</h3>
         <v-data-table :headers="headers" :items="users" :search="search" @click:row="handleClick" sort-by="last_name"
             class="elevation-1" :loading="loadingDataTable" loading-text="Loading... Please wait">
             <template v-slot:item.is_superuser="{ item }">
@@ -15,14 +16,11 @@
             </template>
 
             <template v-slot:top>
-                <v-toolbar flat>
-                    <v-toolbar-title>Archived Users List</v-toolbar-title>
-                    <v-divider class="mx-4" inset vertical></v-divider>
-                    <v-spacer></v-spacer>
+                <v-toolbar flat>                    
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line outlined
                         hide-details clearable rounded dense></v-text-field>
+                    <v-spacer></v-spacer>
                     <v-divider class="mx-4" inset vertical></v-divider>
-
                     <v-dialog v-model="dialogRestore" max-width="500px">
                         <v-card>
                             <v-card-title class="text-center">Are you sure you want to reactivate this user?
@@ -255,3 +253,16 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+
+.page-title {
+    color: white;
+    background-color: #1976D2;
+    margin-bottom: 12px;
+    padding: 6px 0 6px 0;
+    border-radius: 10px;
+    text-align: center;
+}
+
+</style>

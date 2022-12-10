@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h3 class="page-title">ACTIVE SITES</h3>
         <v-data-table :headers="headers" :items="sites" :search="search" sort-by="name" class="elevation-1" @click:row="handleClick"
             :loading="loadingDataTable" loading-text="Loading... Please wait">
 
@@ -12,11 +13,10 @@
 
             <template v-slot:top>
                 <v-toolbar flat>
-                    <v-toolbar-title>Sites List</v-toolbar-title>
-                    <v-divider class="mx-4" inset vertical></v-divider>
-                    <v-spacer></v-spacer>
+                    
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" maxlength="100" single-line
                         outlined hide-details clearable rounded dense></v-text-field>
+                    <v-spacer></v-spacer>
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
@@ -28,7 +28,7 @@
                         <!-- ADD AND EDIT MODAL START -->
                         <v-card>
                             <ValidationObserver ref="form" v-slot="{ invalid }">
-                                <form @submit.prevent="save(editedItem.id, editedItem.name)">
+                                <form @submit.prevent="save(editedItem)">
                                     <v-card-title>
                                         <span class="text-h6">{{ formTitle }}</span>
                                     </v-card-title>
@@ -54,7 +54,7 @@
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
                                         <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-                                        <v-btn color="blue darken-1" text @click="save(editedItem.id, editedItem.name)"
+                                        <v-btn color="blue darken-1" text @click="save(editedItem)"
                                             :disabled="invalid"> Save
                                         </v-btn>
                                     </v-card-actions>
@@ -66,16 +66,20 @@
 
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
-                            <v-card-title class="text-h6">Are you sure you want to delete this project?</v-card-title>
+                            <v-card-title class="text-h6">Are you sure you want to deactivate this site?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem.id)">OK</v-btn>
+                                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem)">OK</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
                 </v-toolbar>
+            </template>
+            <template v-slot:item.actions="{ item }">
+                <v-icon small class="mr-2" @click.stop.prevent="editItem(item)"> mdi-pencil </v-icon>
+                <v-icon small @click.stop.prevent="deleteItem(item)"> mdi-delete </v-icon>
             </template>
             <template v-slot:no-data> No active sites. </template>
 
@@ -219,10 +223,10 @@ export default {
             this.dialogDelete = true;
         },
 
-        async deleteItemConfirm(id) {
-            console.log(id)
+        async deleteItemConfirm(item) {
+            console.log(item.id)
             const payload = {
-                "id": id
+                "id": item.id
             }
             const api_response = await SitesAPI.deactivate(payload);
 
@@ -236,7 +240,7 @@ export default {
                 this.initialize()
             } else if (api_response.status === 0) {
                 console.log(api_response.outputData.response.data.message);
-                this.responseMessage = api_response.outputData.data.message
+                this.responseMessage = api_response.outputData.response.data.message
                 this.snackbarColor = 'error'
                 this.snackbar = true
                 this.sites = []
@@ -264,15 +268,12 @@ export default {
             });
         },
 
-        async save(id = null, name) {
+        async save(item) {
             this.$refs.form.validate()
+            const payload = item
 
             if (this.editedIndex === -1) {
-                //ADD ITEM
-
-                const payload = {
-                    "name": name
-                }
+                //ADD ITEM                
                 const api_response = await SitesAPI.add(payload);
 
                 if (api_response.status === 1) {
@@ -295,10 +296,6 @@ export default {
             } else {
 
                 //EDIT ITEM
-                const payload = {
-                    "id": id,
-                    "name": name
-                }
                 const api_response = await SitesAPI.edit(payload);
 
                 if (api_response.status === 1) {
@@ -326,11 +323,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.row-bg {
-    display: table-row;
+
+.page-title {
+    color: white;
+    background-color: #1976D2;
+    margin-bottom: 12px;
+    padding: 6px 0 6px 0;
+    border-radius: 10px;
+    text-align: center;
 }
 
-.row-bg:hover {
-    cursor: pointer;
-}
 </style>
