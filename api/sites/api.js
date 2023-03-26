@@ -86,9 +86,9 @@ class SitesAPI {
         return promise
     }
 
-    static add_project = async payload => {
+    static assign_project = async payload => {
         let promise = await base.POST({
-            slug: 'sites/add-project/',
+            slug: 'sites/assign-project/',
             payload: payload,
             headers: {},
             success: data => success(data),
@@ -101,6 +101,30 @@ class SitesAPI {
     static unassign_project = async payload => {
         let promise = await base.POST({
             slug: 'sites/unassign-project/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
+
+    static assign_employee = async payload => {
+        let promise = await base.POST({
+            slug: 'sites/assign-employee/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
+
+    static unassign_employee = async payload => {
+        let promise = await base.POST({
+            slug: 'sites/unassign-employee/',
             payload: payload,
             headers: {},
             success: data => success(data),

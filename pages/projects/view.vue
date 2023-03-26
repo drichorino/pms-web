@@ -1,7 +1,6 @@
 <template>
     <div>
         {{ project_id }}
-        <EmployeesView />
     </div>
 </template>
 <script>
