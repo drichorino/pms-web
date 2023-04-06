@@ -137,22 +137,17 @@
                             </v-card>
                         </v-dialog>
 
-                        <v-dialog v-model="selectProjectDialog" max-width="80%">
-                            <template v-slot:activator="{ on, attrs }"> 
-                                <v-btn color="primary mr-6" dark v-bind="attrs" v-on="on">
-                                    Deploy Employee to Project
-                                </v-btn>
-                            </template>
-                            <!-- ADD EMPLOYEES MODAL START -->
+                        <v-dialog v-model="deployEmployeeToProjectDialog" max-width="80%">
+                            <!-- DEPLOY EMPLOYEES MODAL START -->
                             <v-card class="pa-5">
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="closeSelectProjectModal"> Cancel </v-btn>
-                                    <v-btn color="blue darken-1" text @click="saveSelectProject()" :disabled="disabledEmployeeSaveBtn"> Save
+                                    <v-btn color="blue darken-1" text @click="closeDeployEmployeeToProjectModal()"> Cancel </v-btn>
+                                    <v-btn color="blue darken-1" text @click="saveEmployeeToProject()" :disabled="disabledDeployEmployeeSaveBtn"> Deploy Employee
                                     </v-btn>
                                 </v-card-actions>
-                                <v-combobox v-model="employees_to_assign" :items="employees_not_in_site" item-text="name"
-                                    item-value="id" label="Select Employees" clearable outlined multiple chips
+                                <v-combobox v-model="projects_selected" :items="projects_in_site" item-text="name"
+                                    item-value="id" label="Select Projects" clearable outlined multiple chips
                                     deletable-chips>
                                 </v-combobox>
                             </v-card>
@@ -161,11 +156,10 @@
 
                     </v-toolbar>
                 </template>
-                <template v-slot:item.actions="{ item }">
-                    
+                <template v-slot:item.actions="{ item }">                    
                     <v-tooltip bottom>
                         <template v-slot:activator="{ on, attrs }">
-                            <v-icon small v-bind="attrs" v-on="on" @click.stop.prevent="assignEmployeeToProject(item)"> mdi-plus-thick </v-icon>
+                            <v-icon small v-bind="attrs" v-on="on" @click.stop.prevent="openDeployEmployeeToProjectModal(item)"> mdi-plus-thick </v-icon>
                         </template>
                         <span class="tooltip-text" >Deploy to Project</span>
                     </v-tooltip>
@@ -207,14 +201,16 @@ export default {
     data: () => ({
         projectDialog: false,
         employeeDialog: false,
-        selectProjectDialog: false,
+        deployEmployeeToProjectDialog: false,
         site_id: '',
         project: '',
         site: '',
+        selectedEmployeeID: '',
 
         projects_not_in_site: [],
         projects_in_site: [],
         projects_to_assign: [],
+        projects_selected: [],
 
         employees_not_in_site: [],
         employees_in_site: [],
@@ -296,6 +292,14 @@ export default {
                 this.disabledEmployeeSaveBtn = false
             } else if (this.employees_to_assign.length == 0) {
                 this.disabledEmployeeSaveBtn = true
+            }
+        },
+
+        projects_selected: function () {
+            if (this.projects_selected.length > 0) {
+                this.disabledDeployEmployeeSaveBtn = false
+            } else if (this.projects_selected.length == 0) {
+                this.disabledDeployEmployeeSaveBtn = true
             }
         }
     },
@@ -388,20 +392,6 @@ export default {
             
         },
 
-        async saveSelectProject() {
-            this.$nuxt.$loading.start()
-            const payload = {
-                "id": this.site_id,
-                "employees_to_assign": _.map(this.employees_to_assign, 'id')
-            }
-
-
-            this.employees_to_assign = []
-            this.employeeDialog = false
-            
-        },
-
-
         //projects table
         formatDate(date) {
             var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }
@@ -488,9 +478,34 @@ export default {
             this.$nuxt.$loading.finish()
         },
 
-        assignEmployeeToProject(item) {
-            console.log(item)
-            //add assign modal here
+        openDeployEmployeeToProjectModal(item) {
+            this.selectedEmployeeID = item.id
+            console.log(this.selectedEmployeeID)
+            this.deployEmployeeToProjectDialog = true            //add assign modal here
+        },
+
+        async saveEmployeeToProject() {
+            //this.$nuxt.$loading.start()
+            const payload = {
+                "employee_id": this.selectedEmployeeID,
+                "projects_selected": _.map(this.projects_selected, 'id')
+            }
+            console.log(payload)
+
+            this.projects_selected = []
+            this.selectedEmployeeID = ''
+            this.deployEmployeeToProjectDialog = false
+            
+        },
+
+
+        closeDeployEmployeeToProjectModal(){
+            this.deployEmployeeToProjectDialog = false
+            this.$nextTick(() => {
+                this.projects_selected = []
+                this.selectedEmployeeID = ''
+            })
+
         },
 
         handleClick(row) {
