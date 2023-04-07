@@ -481,7 +481,7 @@ export default {
         openDeployEmployeeToProjectModal(item) {
             this.selectedEmployeeID = item.id
             console.log(this.selectedEmployeeID)
-            this.deployEmployeeToProjectDialog = true            //add assign modal here
+            this.deployEmployeeToProjectDialog = true  
         },
 
         async saveEmployeeToProject() {
@@ -497,7 +497,6 @@ export default {
             this.deployEmployeeToProjectDialog = false
             
         },
-
 
         closeDeployEmployeeToProjectModal(){
             this.deployEmployeeToProjectDialog = false
@@ -546,7 +545,7 @@ export default {
 
 <style scoped>
 .tooltip-text {
-  font-size: 12px; /* change this value to adjust the font size */
+    font-size: 12px; /* change this value to adjust the font size */
 }
 
 </style>

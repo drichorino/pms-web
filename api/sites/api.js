@@ -133,6 +133,18 @@ class SitesAPI {
 
         return promise
     }
+
+    static deploy_employee_to_project = async payload => {
+        let promise = await base.POST({
+            slug: 'sites/deploy-employee-to-project/',
+            payload: payload,
+            headers: {},
+            success: data => success(data),
+            fail: err => fail(err)
+        })
+
+        return promise
+    }
 }
 
 export default SitesAPI
